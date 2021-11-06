@@ -63,4 +63,14 @@ class Drawer {
         this.ctx.font = font;
         this.ctx.fillText(text, position.X, position.Y);
     }
+
+    gameObject(gameObject) {
+        if (gameObject === null || gameObject === undefined) {
+            console.error('No gameObject found to be drawed');
+            return false;
+        }
+
+        this.sprite(gameObject.sprite, gameObject.position);
+        return true;
+    }
 }

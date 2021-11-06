@@ -14,8 +14,7 @@ class Engine {
         this.frameTimer = 0;
         this.frameCount = 0;
         this.fps = 0;
-        this.gameImages = [];
-        this.gameSprites = [];
+        this.gameObjects = [];
     }
 
     /**
@@ -36,22 +35,27 @@ class Engine {
         return true;
     }
 
-    addImage(image, sx, sy, sw, sh, dx, dy, dw, dh) {
-        if (image === null || image === undefined) {
-            console.error('No correct Image was defined');
-            return false;
-        }
-        this.gameImages.push(image);
+    /**
+     * Get the canvas size
+     * @returns Size
+     */
+    screenSize() {
+        return new Size(window.innerWidth, window.innerHeight);
     }
 
-    addSprite(path, size) {
-        if (path === null || path === undefined) {
-            console.error('No correct Image was defined');
+    /**
+     * Register new gameobject to the engine to be draw by default
+     * @param {*} gameObject 
+     * @returns bool
+     */
+    registerGameObject(gameObject) {
+        if (gameObject === null || gameObject === undefined) {
+            console.error('No game object was defined');
             return false;
         }
-        sprite = new Sprite(size.width, size.height);
-        sprite.loadImage(path);
-        this.gameImages.push(image);
+
+        this.gameObjects.push(gameObject);
+        return true;
     }
 
     /**
@@ -108,6 +112,10 @@ class Engine {
         this.startTime = this.endTime;
         // Run the user logic everytime
         this.engineActive = this.OnUpdate(this.elapsedTime);
+
+        for (let i = 0; i < this.gameObjects.length; i++) {
+            this.drawer.gameObject(this.gameObjects[i]);
+        }
 
         // Display FPS
         if (this.calculeFPS) {
