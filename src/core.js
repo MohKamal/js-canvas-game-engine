@@ -5,26 +5,22 @@ $(document).ready(function() {
     var ctx = canvas[0].getContext("2d");
     var x = 10;
     var speed = 150;
+
     // Init the Engine
     engine = new Engine(canvas[0]);
     engine.OnCreate = function() {
-        sprite = new Sprite(32, 32);
-        sprite.loadImage('assets/ship.png');
-        gameObject = new GameObject(sprite, new Position(10, 50));
-        gameObject.moveCondition = function(x, y) {
-            if (x >= engine.screenSize().width) {
-                gameObject.velocity.X = -150;
-            } else if (x <= 0) {
-                gameObject.velocity.X = 150;
-            }
-
-            console.log(x);
-            console.log(gameObject.velocity.X);
-        };
-        engine.registerGameObject(gameObject);
+        sprite = new SpriteSheet('moving', 125, 125, 15, 0, 15, 'assets/spritesheet_numbered.png');
+        gameObject = new GameObject(sprite, new Position(150, 150));
+        animation = new Animation();
+        animation.registerAnimation(sprite);
+        gameObject.registerAnimation(animation);
+        gameObject.setAnimation('moving');
     };
     engine.OnUpdate = function(elapsedTime) {
-        gameObject.move();
+        engine.drawer.gameObject(gameObject);
+        engine.drawer.text('I love u', new Position(x, 100), '16px arial');
+        x += speed * elapsedTime;
+        console.log(x);
     };
     engine.start();
 });

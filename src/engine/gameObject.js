@@ -2,10 +2,12 @@ class GameObject {
     constructor(sprite, position) {
         this.sprite = sprite;
         this.position = position;
-        this.velocity = new Position(0, 0);
+        this.velocity = new Point(0, 0);
         this.name = "Game Object";
         this.showIt = true;
         this.isStatic = false;
+        this.animations = new Animation();
+        this.hasSimpleSprite = true;
     }
 
     /**
@@ -55,24 +57,57 @@ class GameObject {
      * This function to check for some user rules, like falling gravity
      * @param {double} x 
      * @param {double} y 
+     * @param {double} elapsedTime 
      * @returns bool
      */
-    moveCondition(x, y) { return false; }
+    moveCondition(x, y, elapsedTime) { return false; }
 
     /**
      * Using the object velocity, this will change the position
      * Also, it gonna verify the Moving Condition Function
+     * @param {double} elapsedTime 
      */
-    move() {
-        let newPositionX = this.position.X + this.velocity.X;
-        let newPositionY = this.position.Y + this.velocity.Y;
+    move(elapsedTime) {
+        let newPositionX = this.position.X + (this.velocity.X * elapsedTime);
+        let newPositionY = this.position.Y + (this.velocity.Y * elapsedTime);
 
         // Check if there is condition
-        this.moveCondition(newPositionX, newPositionY);
+        this.moveCondition(newPositionX, newPositionY, elapsedTime);
 
-        newPositionX = this.position.X + this.velocity.X;
-        newPositionY = this.position.Y + this.velocity.Y;
+        newPositionX = this.position.X + (this.velocity.X * elapsedTime);
+        newPositionY = this.position.Y + (this.velocity.Y * elapsedTime);
 
         this.position = new Position(newPositionX, newPositionY);
+    }
+
+    /**
+     * Set the game object animation object
+     * @param {Animation} animation 
+     * @returns bool
+     */
+    registerAnimation(animation) {
+        if (animation === null || animation === undefined) {
+            console.error('No valid animation was found to be registred to the gameObject');
+            return false;
+        }
+        this.animations = animation;
+        return true;
+    }
+
+    /**
+     * Set the current sprite to spriteSheet
+     * @param {string} name 
+     * @returns bool
+     */
+    setAnimation(name) {
+        let spriteSheet = this.animations.getAnimation(name);
+        if (spriteSheet === null || spriteSheet === undefined) {
+            console.error('No sprite sheet was found in the animation to be displayed');
+            return false;
+        }
+
+        this.sprite = spriteSheet;
+        this.hasSimpleSprite = false;
+        return false;
     }
 }

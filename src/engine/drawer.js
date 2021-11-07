@@ -49,9 +49,20 @@ class Drawer {
      * Draw a sprite in position
      * @param {Sprite} sprite 
      * @param {Position} position 
+     * @returns bool
      */
     sprite(sprite, position) {
+        if (sprite === null || sprite === undefined) {
+            console.error('No valid sprite Sheet was found to be drawed');
+            return false;
+        }
+
+        if (sprite.image === null || sprite.image === undefined) {
+            console.error('No valid sprite Sheet image was found to be drawed');
+            return false;
+        }
         this.ctx.drawImage(sprite.image, position.X, position.Y);
+        return true;
     }
 
     /**
@@ -64,12 +75,46 @@ class Drawer {
         this.ctx.fillText(text, position.X, position.Y);
     }
 
+    /**
+     * Draw SpriteSheet animation
+     * @param {SpriteSheet} sprite 
+     * @param {Position} position 
+     * @returns bool
+     */
+    spriteSheet(sprite, position) {
+        if (sprite === null || sprite === undefined) {
+            console.error('No valid sprite Sheet was found to be drawed');
+            return false;
+        }
+
+        if (sprite.image === null || sprite.image === undefined) {
+            console.error('No valid sprite Sheet image was found to be drawed');
+            return false;
+        }
+
+        sprite.update();
+        const ctxTemp = this.ctx;
+        sprite.image.onload = function() {
+            ctxTemp.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
+        };
+        this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
+        return true;
+    }
+
+    /**
+     * Draw Game object sprite, or SpriteSheet
+     * @param {GameObject} gameObject 
+     * @returns bool
+     */
     gameObject(gameObject) {
         if (gameObject === null || gameObject === undefined) {
             console.error('No gameObject found to be drawed');
             return false;
         }
-
+        if (!gameObject.hasSimpleSprite) {
+            this.spriteSheet(gameObject.sprite, gameObject.position);
+            return true;
+        }
         this.sprite(gameObject.sprite, gameObject.position);
         return true;
     }
