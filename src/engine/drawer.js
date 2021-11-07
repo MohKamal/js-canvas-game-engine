@@ -91,12 +91,7 @@ class Drawer {
             console.error('No valid sprite Sheet image was found to be drawed');
             return false;
         }
-
         sprite.update();
-        const ctxTemp = this.ctx;
-        sprite.image.onload = function() {
-            ctxTemp.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
-        };
         this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
         return true;
     }

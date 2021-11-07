@@ -1,5 +1,5 @@
 // First of all, wait to the document is ready
-$(document).ready(function() {
+$(window).on("load", function() {
     // Get the canas Element
     var canvas = $("#canvas");
     var ctx = canvas[0].getContext("2d");
@@ -15,12 +15,14 @@ $(document).ready(function() {
         animation.registerAnimation(sprite);
         gameObject.registerAnimation(animation);
         gameObject.setAnimation('moving');
+        scene = new Scene('menu', engine);
+        scene.layers[0].layer.registerGameObject(gameObject);
+        engine.registerScene(scene);
     };
     engine.OnUpdate = function(elapsedTime) {
-        engine.drawer.gameObject(gameObject);
-        engine.drawer.text('I love u', new Position(x, 100), '16px arial');
+        // engine.drawer.gameObject(gameObject);
+        engine.drawer.text('Mouse with mouse', new Position(x, 150), '16px arial');
         x += speed * elapsedTime;
-        console.log(x);
     };
     engine.start();
 });
