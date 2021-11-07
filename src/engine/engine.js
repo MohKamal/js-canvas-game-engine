@@ -17,10 +17,13 @@ class Engine {
         this.currentScene = null;
         this.gameObjects = [];
         this.scenes = [];
+        this.currentCamera = null;
         // Track mouse position event
         this.mousePoint = new Point(0, 0);
         this.mouseButton = [];
         this.mouseClicking = false;
+        this.keys = [];
+        this.isKeyClicked = false;
         this.canvas.addEventListener('mousemove', function(e) {
             return this.mousePoint = new Point(e.pageX, e.pageY);
         }.bind(this));
@@ -46,6 +49,18 @@ class Engine {
             }
             this.mouseClicking = false;
         }.bind(this));
+
+        window.addEventListener('keydown', function(e) {
+            if (!this.keys.includes(e.code)) this.keys.push(e.code);
+            this.isKeyClicked = true;
+        }.bind(this), false);
+
+        window.addEventListener('keyup', function(e) {
+            if (this.keys.includes(e.code)) {
+                this.keys = this.removeItemAll(this.keys, e.code);
+            }
+            this.isKeyClicked = false;
+        }.bind(this), false);
     }
 
     /**
@@ -73,6 +88,15 @@ class Engine {
      */
     mouseClicked(button) {
         return this.mouseButton.includes(button);
+    }
+
+    /**
+     * Get true/false if a key is clicked
+     * @param {KeyButton} key 
+     * @returns {boolean}
+     */
+    keyClicked(key) {
+        return this.keys.includes(key);
     }
 
     /**
@@ -262,6 +286,21 @@ class Engine {
     }
 
     /**
+     * Set a camera to the full engine
+     * @param {Camera} camera 
+     * @returns 
+     */
+    setCamera(camera) {
+        if (camera === null || camera === undefined) {
+            console.error('No valid camera was found to be add to the engine');
+            return false;
+        }
+
+        this.currentCamera = camera;
+        return true;
+    }
+
+    /**
      * Timer callback function, where the magic is running
      */
     timerElapsed() {
@@ -275,7 +314,7 @@ class Engine {
 
         for (let i = 0; i < this.gameObjects.length; i++) {
             if (this.gameObjects[i].showIt)
-                this.drawer.gameObject(this.gameObjects[i]);
+                this.drawer.gameObject(this.gameObjects[i], this.currentCamera);
         }
 
         this.executeScenes();
@@ -291,7 +330,7 @@ class Engine {
             for (var i = 0; i < this.currentScene.layers.length; i++) {
                 for (let j = 0; j < this.currentScene.layers[i].layer.gameObjects.length; j++) {
                     if (this.currentScene.layers[i].layer.gameObjects[j].showIt)
-                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j]);
+                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j], this.currentCamera);
                 }
             }
         }

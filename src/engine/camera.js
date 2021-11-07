@@ -1,4 +1,5 @@
 class Camera {
+
     constructor(screenWidth, screenHeight, levelWidth, levelHeight, speed = 10) {
         this.screenSize = new Size(screenWidth, screenHeight);
         this.layoutSize = new Size(levelWidth, levelHeight);

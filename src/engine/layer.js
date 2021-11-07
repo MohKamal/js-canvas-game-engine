@@ -1,4 +1,5 @@
 class Layer {
+
     constructor(name) {
         this.name = name;
         this.gameObjects = [];

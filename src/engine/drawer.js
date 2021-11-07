@@ -1,4 +1,5 @@
 class Drawer {
+
     constructor(canvas) {
         this.canvas = canvas;
         this.canvas.width = window.innerWidth;
@@ -64,7 +65,7 @@ class Drawer {
 
         if (camera !== null) {
             camera.updateMaxPosition();
-            if (position.X >= camera.position.X && position.X <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
+            if (position.X >= camera.position.X && (position.X + sprite.width) <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
                 this.ctx.drawImage(sprite.image, position.X + camera.offset.X, position.Y + camera.offset.Y);
             }
         } else {
@@ -78,12 +79,13 @@ class Drawer {
      * @param {string} text 
      * @param {Position} position 
      */
-    text(text, position, font = '14px serif', camera = null) {
-        this.ctx.font = font;
+    text(text, position, fontSize = 14, font = 'serif', camera = null) {
+        this.ctx.font = `${fontSize}px ${font}`;
         if (camera !== null) {
             camera.updateMaxPosition();
-            if (position.X >= camera.position.X && position.X <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
-                this.ctx.fillText(text, position.X + camera.offset.X, position.Y + camera.offset.Y);
+            let size = this.ctx.measureText(text);
+            if ((position.X >= camera.position.X && (position.X + (size.width / 2)) < camera.maxPosition.X) && (position.Y - fontSize >= camera.position.Y && position.Y < camera.maxPosition.Y)) {
+                this.ctx.fillText(text, position.X, position.Y);
             }
         } else {
             this.ctx.fillText(text, position.X, position.Y);
@@ -109,8 +111,8 @@ class Drawer {
         sprite.update();
         if (camera !== null) {
             camera.updateMaxPosition();
-            if (position.X >= camera.position.X && position.X <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
-                this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X + camera.offset.X, position.Y + camera.offset.Y, sprite.width, sprite.height);
+            if (position.X >= camera.position.X && (position.X + sprite.width) <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
+                this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
             }
         } else {
             this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);

@@ -1,4 +1,5 @@
 class Scene {
+
     constructor(name, engine) {
         this.name = name;
         this.isEnded = false;

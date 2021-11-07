@@ -1,4 +1,5 @@
 class GameObject {
+
     constructor(sprite, position) {
         this.sprite = sprite;
         this.position = position;

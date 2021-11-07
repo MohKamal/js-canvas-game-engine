@@ -1,4 +1,5 @@
 class Animation {
+
     constructor() {
         this.animations = [];
     }

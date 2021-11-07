@@ -1,4 +1,5 @@
 class SpriteSheet extends Sprite {
+
     constructor(name, width, height, frameSpeed, startFrame, endFrame, imagePath) {
         super(width, height);
         this.name = name;
