@@ -15,13 +15,18 @@ $(window).on("load", function() {
         animation.registerAnimation(sprite);
         gameObject.registerAnimation(animation);
         gameObject.setAnimation('moving');
-        scene = new Scene('menu', engine);
-        scene.layers[0].layer.registerGameObject(gameObject);
-        engine.registerScene(scene);
+        engine.registerGameObject(gameObject);
+        camera = new WorldCamera(500, 500, 200, 200);
     };
     engine.OnUpdate = function(elapsedTime) {
         // engine.drawer.gameObject(gameObject);
-        engine.drawer.text('Mouse with mouse', new Position(x, 150), '16px arial');
+        engine.drawer.camera(camera);
+        camera.location = engine.mousePosition();
+        gameObject.position = engine.mousePosition();
+        engine.drawer.text(`${x};150`, new Position(x, 150), '16px arial', camera);
+        engine.drawer.text(`${camera.maxPosition.X}:${camera.maxPosition.Y}`, engine.mousePosition(), '48px arial', camera);
+        engine.drawer.text('Text on bottom', new Position(10, 500), '48px arial', camera);
+        engine.drawer.text('Text on bottom', new Position(10, 500), '48px arial', camera);
         x += speed * elapsedTime;
     };
     engine.start();

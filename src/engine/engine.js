@@ -48,6 +48,12 @@ class Engine {
         }.bind(this));
     }
 
+    /**
+     * Remove all int from an array
+     * @param {Array} arr 
+     * @param {Int} value 
+     * @returns {Array}
+     */
     removeItemAll(arr, value) {
         var i = 0;
         while (i < arr.length) {

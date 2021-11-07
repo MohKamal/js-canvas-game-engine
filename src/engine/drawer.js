@@ -51,7 +51,7 @@ class Drawer {
      * @param {Position} position 
      * @returns bool
      */
-    sprite(sprite, position) {
+    sprite(sprite, position, camera = null) {
         if (sprite === null || sprite === undefined) {
             console.error('No valid sprite Sheet was found to be drawed');
             return false;
@@ -61,7 +61,15 @@ class Drawer {
             console.error('No valid sprite Sheet image was found to be drawed');
             return false;
         }
-        this.ctx.drawImage(sprite.image, position.X, position.Y);
+
+        if (camera !== null) {
+            camera.updateMaxPosition();
+            if (position.X >= camera.position.X && position.X <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
+                this.ctx.drawImage(sprite.image, position.X + camera.offset.X, position.Y + camera.offset.Y);
+            }
+        } else {
+            this.ctx.drawImage(sprite.image, position.X, position.Y);
+        }
         return true;
     }
 
@@ -70,9 +78,16 @@ class Drawer {
      * @param {string} text 
      * @param {Position} position 
      */
-    text(text, position, font = '14px serif') {
+    text(text, position, font = '14px serif', camera = null) {
         this.ctx.font = font;
-        this.ctx.fillText(text, position.X, position.Y);
+        if (camera !== null) {
+            camera.updateMaxPosition();
+            if (position.X >= camera.position.X && position.X <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
+                this.ctx.fillText(text, position.X + camera.offset.X, position.Y + camera.offset.Y);
+            }
+        } else {
+            this.ctx.fillText(text, position.X, position.Y);
+        }
     }
 
     /**
@@ -81,7 +96,7 @@ class Drawer {
      * @param {Position} position 
      * @returns bool
      */
-    spriteSheet(sprite, position) {
+    spriteSheet(sprite, position, camera = null) {
         if (sprite === null || sprite === undefined) {
             console.error('No valid sprite Sheet was found to be drawed');
             return false;
@@ -92,7 +107,14 @@ class Drawer {
             return false;
         }
         sprite.update();
-        this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
+        if (camera !== null) {
+            camera.updateMaxPosition();
+            if (position.X >= camera.position.X && position.X <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
+                this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X + camera.offset.X, position.Y + camera.offset.Y, sprite.width, sprite.height);
+            }
+        } else {
+            this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
+        }
         return true;
     }
 
@@ -101,16 +123,35 @@ class Drawer {
      * @param {GameObject} gameObject 
      * @returns bool
      */
-    gameObject(gameObject) {
+    gameObject(gameObject, camera = null) {
         if (gameObject === null || gameObject === undefined) {
             console.error('No gameObject found to be drawed');
             return false;
         }
         if (!gameObject.hasSimpleSprite) {
-            this.spriteSheet(gameObject.sprite, gameObject.position);
+            this.spriteSheet(gameObject.sprite, gameObject.position, camera);
             return true;
         }
-        this.sprite(gameObject.sprite, gameObject.position);
+        this.sprite(gameObject.sprite, gameObject.position, camera);
+        return true;
+    }
+
+    /**
+     * Display camera Range as Rectangle
+     * @param {Camera} camera 
+     * @returns {boolean}
+     */
+    camera(camera) {
+        if (camera === null || camera === undefined) {
+            console.error('No camera found to be drawed');
+            return false;
+        }
+
+        this.ctx.beginPath();
+        this.ctx.rect(camera.position.X, camera.position.Y, camera.cameraSize.width, camera.cameraSize.height);
+        this.ctx.lineWidth = "6";
+        this.ctx.strokeStyle = "red";
+        this.ctx.stroke();
         return true;
     }
 }
