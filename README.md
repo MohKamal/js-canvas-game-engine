@@ -5,8 +5,8 @@ A Simple Canvas game engine with native Javascript, doing it the old fashion, ed
 This engine run a timer to drawer on canvas with javascript. With a Detla time, so it work on every CPU with same speed, but lower/Higher FPS.
 
 # Let's Start
-To use this project, first download this project.
-After that, create a javascript file, call it what every you want, and added in the html file.
+To use this project, first, download it.
+After that, create a javascript file, call it what ever you want, and add it in the html file.
 
 ```js
 // First of all, wait to the document is ready
