@@ -9,6 +9,7 @@ class Camera {
         this.position = new Position(0, 0);
         this.offset = new Point(0, 0);
         this.location = new Point(0, 0);
+        this.addOffset = false;
         this.updateMaxPosition();
         this.getOffset();
     }
