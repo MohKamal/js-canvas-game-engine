@@ -21,6 +21,7 @@ $(window).on("load", function() {
         movingAnimation = new GeometricAnimation('test', gameObject);
         movingAnimation.startFrom(null);
         animate = false;
+        drawPoint = true;
     };
     engine.OnUpdate = function(elapsedTime) {
         if (engine.keyClicked(Keys.ArrowRight)) {
@@ -32,11 +33,11 @@ $(window).on("load", function() {
         }
 
         if (engine.keyClicked(Keys.Enter)) {
-            animate = true;
+            drawPoint = !drawPoint;
         }
 
         if (engine.keyClicked(Keys.Space)) {
-            animate = false;
+            animate = !animate;
         }
 
         if (animate) {
@@ -50,10 +51,15 @@ $(window).on("load", function() {
             movingAnimation.endAt(engine.mousePosition(), 300);
         }
 
-        movingAnimation.drawPoints(engine.drawer);
+        if (drawPoint)
+            movingAnimation.drawPoints(engine.drawer);
+
         engine.drawer.text(`Object(${gameObject.position.X},${gameObject.position.Y})`, new Position(10, 20));
-        if (movingAnimation.currentPoint)
+        if (movingAnimation.currentPoint) {
             engine.drawer.text(`Point(${movingAnimation.currentPoint.position.X},${movingAnimation.currentPoint.position.Y})`, new Position(10, 50));
+            engine.drawer.text(`Distance(${parseInt(movingAnimation.currentPoint.position.X - gameObject.position.X)},${parseInt(movingAnimation.currentPoint.position.Y - gameObject.position.Y)})`, new Position(10, 80));
+            engine.drawer.text(`Index(${movingAnimation.index})`, new Position(10, 100));
+        }
     };
     engine.start();
 });

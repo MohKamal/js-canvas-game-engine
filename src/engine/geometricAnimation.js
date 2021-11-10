@@ -71,13 +71,14 @@ class GeometricAnimation {
             }
             if (this.index < this.checkPoints.length)
                 this.currentPoint = this.checkPoints[this.index];
-
-            if (this.currentPoint !== null && (this.currentPoint.position.X - this.gameObject.position.X) < 1 && (this.currentPoint.position.Y - this.gameObject.position.Y) < 1) {
+            if (this.currentPoint !== null &&
+                (parseInt(this.currentPoint.position.X - this.gameObject.position.X) >= 0 && parseInt(this.currentPoint.position.X - this.gameObject.position.X) < 1) &&
+                (parseInt(this.currentPoint.position.Y - this.gameObject.position.Y) >= 0 && parseInt(this.currentPoint.position.Y - this.gameObject.position.Y) < 1)) {
                 if (this.index < this.checkPoints.length) {
                     this.index++;
                 } else {
                     // end animation
-                    if (this.endPoint !== null && (this.endPoint.position.X - this.gameObject.position.X) < 1 && (this.endPoint.position.Y - this.gameObject.position.Y) < 1) {
+                    if (this.endPoint !== null && (parseInt(this.endPoint.position.X - this.gameObject.position.X) >= 0 && parseInt(this.endPoint.position.X - this.gameObject.position.X) < 1)) {
                         this.ended = true;
                     } else {
                         this.currentPoint = this.endPoint;
