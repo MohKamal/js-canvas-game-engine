@@ -68,13 +68,11 @@ class Drawer {
             if (position.X >= camera.position.X && (position.X + sprite.width) <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
                 if (camera.addOffset) {
                     this.ctx.drawImage(sprite.image, position.X + camera.offset.X, position.Y + camera.offset.Y);
-                } else {
-                    this.ctx.drawImage(sprite.image, position.X + camera.offset.X, position.Y + camera.offset.Y);
+                    return true;
                 }
             }
-        } else {
-            this.ctx.drawImage(sprite.image, 0, 0, sprite.image.width, sprite.image.height, position.X, position.Y, sprite.width, sprite.height);
         }
+        this.ctx.drawImage(sprite.image, 0, 0, sprite.image.width, sprite.image.height, position.X, position.Y, sprite.width, sprite.height);
         return true;
     }
 
@@ -91,13 +89,12 @@ class Drawer {
             if ((position.X >= camera.position.X && (position.X + (size.width / 2)) < camera.maxPosition.X) && (position.Y - fontSize >= camera.position.Y && position.Y < camera.maxPosition.Y)) {
                 if (camera.addOffset) {
                     this.ctx.fillText(text, position.X + camera.offset.X, position.Y + camera.offset.Y);
-                } else {
-                    this.ctx.fillText(text, position.X, position.Y);
+                    return true;
                 }
             }
-        } else {
-            this.ctx.fillText(text, position.X, position.Y);
         }
+        this.ctx.fillText(text, position.X, position.Y);
+        return true;
     }
 
     /**
@@ -122,13 +119,11 @@ class Drawer {
             if (position.X >= camera.position.X && (position.X + sprite.width) <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
                 if (camera.addOffset) {
                     this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X + camera.offset.X, position.Y + camera.offset.Y, sprite.width, sprite.height);
-                } else {
-                    this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
+                    return true;
                 }
             }
-        } else {
-            this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
         }
+        this.ctx.drawImage(sprite.image, sprite.frame().X, sprite.frame().Y, sprite.width, sprite.height, position.X, position.Y, sprite.width, sprite.height);
         return true;
     }
 
@@ -183,19 +178,109 @@ class Drawer {
         if (camera !== null) {
             camera.updateMaxPosition();
             if (point1.X >= camera.position.X && point1.Y <= camera.position.Y && point2.X <= camera.maxPosition.X && point2.Y <= camera.maxPosition.Y) {
-
-                // draw a red line
-                this.ctx.beginPath();
-                this.ctx.moveTo(point1.X, point1.Y);
-                this.ctx.lineTo(point2.X, point2.Y);
-                this.ctx.stroke();
+                if (camera.addOffset) {
+                    // draw a red line
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(point1.X + camera.offset.X, point1.Y + camera.offset.Y);
+                    this.ctx.lineTo(point2.X + camera.offset.X, point2.Y + camera.offset.Y);
+                    this.ctx.stroke();
+                    return true;
+                }
             }
-        } else {
-            // draw a red line
-            this.ctx.beginPath();
-            this.ctx.moveTo(point1.X, point1.Y);
-            this.ctx.lineTo(point2.X, point2.Y);
-            this.ctx.stroke();
         }
+        // draw a red line
+        this.ctx.beginPath();
+        this.ctx.moveTo(point1.X, point1.Y);
+        this.ctx.lineTo(point2.X, point2.Y);
+        this.ctx.stroke();
+        return true;
+    }
+
+    /**
+     * Draw a rectangle
+     * @param {Position} position 
+     * @param {Size} size 
+     * @param {boolean} filled 
+     * @param {Int} lineWidth 
+     * @param {String} color 
+     * @param {Camera} camera 
+     */
+    rectangle(position, size, filled = true, lineWidth = 5, color = 'red', camera = null) {
+        // set line stroke and line width
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = lineWidth;
+        if (camera !== null) {
+            camera.updateMaxPosition();
+            if (position.X >= camera.position.X && position.Y <= camera.position.Y && position.X <= camera.maxPosition.X && position.Y <= camera.maxPosition.Y) {
+                if (camera.addOffset) {
+                    if (filled) {
+                        this.ctx.fillRect(position.X + camera.offset.X, position.Y + camera.offset.Y, size.width, size.height);
+                        return true;
+                    }
+                    this.ctx.strokeRect(position.X + camera.offset.X, position.Y + camera.offset.Y, size.width, size.height);
+                    return true;
+                }
+
+            }
+        }
+
+        if (filled) {
+            this.ctx.fillRect(position.X, position.Y, size.width, size.height);
+            return true;
+        }
+
+        this.ctx.strokeRect(position.X, position.Y, size.width, size.height);
+        return true;
+    }
+
+    /**
+     * Draw an arc or a circle
+     * @param {Position} position 
+     * @param {Int} reduis 
+     * @param {Float} startAngele 
+     * @param {Float} endAngle 
+     * @param {boolean} filled 
+     * @param {Int} lineWidth 
+     * @param {String} color 
+     * @param {Camera} camera 
+     * @returns {boolean}
+     */
+    circle(position, reduis, startAngele = 0, endAngle = -1, filled = true, lineWidth = 5, color = 'red', camera = null) {
+        // set line stroke and line width
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = lineWidth;
+        if (endAngle === -1) {
+            endAngle = 2 * Math.PI;
+        }
+        if (camera !== null) {
+            camera.updateMaxPosition();
+            if (position.X >= camera.position.X && position.Y <= camera.position.Y && position.X <= camera.maxPosition.X && position.Y <= camera.maxPosition.Y) {
+                if (camera.addOffset) {
+                    if (filled) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(position.X + camera.offset.X, position.Y + camera.offset.Y, reduis, startAngele, endAngle);
+                        this.ctx.fill();
+                        return true;
+                    }
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(position.X + camera.offset.X, position.Y + camera.offset.Y, reduis, startAngele, endAngle);
+                    this.ctx.stroke();
+                    return true;
+                }
+            }
+        }
+
+        if (filled) {
+            this.ctx.beginPath();
+            this.ctx.arc(position.X, position.Y, reduis, startAngele, endAngle);
+            this.ctx.fill();
+            return true;
+        }
+
+        this.ctx.beginPath();
+        this.ctx.arc(position.X, position.Y, reduis, startAngele, endAngle);
+        this.ctx.stroke();
+        return true;
     }
 }

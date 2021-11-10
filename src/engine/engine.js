@@ -4,8 +4,8 @@ class Engine {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.drawer = new Drawer(canvas);
-        this.displayFPS = true;
-        this.calculeFPS = true;
+        this.displayFPS = false;
+        this.calculeFPS = false;
         this.engineActive = false;
         this.timerElement = null;
         this.endTime = new Date();
