@@ -111,4 +111,20 @@ class GameObject {
         this.hasSimpleSprite = false;
         return false;
     }
+
+    /**
+     * Set a simple sprite
+     * @param {string} name 
+     * @returns bool
+     */
+    setSprite(sprite) {
+        if (sprite === null || sprite === undefined) {
+            console.error('No sprite was found to be displayed');
+            return false;
+        }
+
+        this.sprite = sprite;
+        this.hasSimpleSprite = true;
+        return false;
+    }
 }

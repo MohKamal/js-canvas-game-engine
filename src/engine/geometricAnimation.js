@@ -33,13 +33,13 @@ class GeometricAnimation {
      * @param {Point} velocity 
      * @returns {GeometricAnimation}
      */
-    to(position, speed = 50) {
+    to(position, speed = 50, callback = null) {
         if (position === null || position === undefined) {
             console.error('No position found to be added to the animation');
             return null;
         }
 
-        this.checkPoints.push({ position: position, speed: speed });
+        this.checkPoints.push({ position: position, speed: speed, callback: callback });
         return this;
     }
 
@@ -49,13 +49,13 @@ class GeometricAnimation {
      * @param {Point} velocity 
      * @returns {GeometricAnimation}
      */
-    endAt(position, speed = 50) {
+    endAt(position, speed = 50, callback = null) {
         if (position === null || position === undefined) {
             console.error('No position found to be added to the animation');
             return null;
         }
 
-        this.endPoint = { position: position, speed: speed };
+        this.endPoint = { position: position, speed: speed, callback: callback };
         return this;
     }
 
@@ -69,16 +69,21 @@ class GeometricAnimation {
                 this.gameObject.position = this.startPosition;
                 this.started = true;
             }
+            if (this.checkPoints.length == 0)
+                this.currentPoint = this.endPoint;
             if (this.index < this.checkPoints.length)
                 this.currentPoint = this.checkPoints[this.index];
-            if (this.currentPoint !== null &&
-                (parseInt(this.currentPoint.position.X - this.gameObject.position.X) >= 0 && parseInt(this.currentPoint.position.X - this.gameObject.position.X) < 1) &&
+            if ((parseInt(this.currentPoint.position.X - this.gameObject.position.X) >= 0 && parseInt(this.currentPoint.position.X - this.gameObject.position.X) < 1) &&
                 (parseInt(this.currentPoint.position.Y - this.gameObject.position.Y) >= 0 && parseInt(this.currentPoint.position.Y - this.gameObject.position.Y) < 1)) {
                 if (this.index < this.checkPoints.length) {
+                    if (this.checkPoints[this.index].callback)
+                        this.checkPoints[this.index].callback();
                     this.index++;
                 } else {
                     // end animation
                     if (this.endPoint !== null && (parseInt(this.endPoint.position.X - this.gameObject.position.X) >= 0 && parseInt(this.endPoint.position.X - this.gameObject.position.X) < 1)) {
+                        if (this.endPoint.callback)
+                            this.endPoint.callback();
                         this.ended = true;
                     } else {
                         this.currentPoint = this.endPoint;
@@ -99,11 +104,13 @@ class GeometricAnimation {
     }
 
     drawPoints(drawer) {
-        drawer.circle(new Position(this.startPosition.X, this.startPosition.Y), 4, 0, (2 * Math.PI), true, 2, 'red', null);
-        for (var i = 0; i < this.checkPoints.length; i++) {
-            const point = this.checkPoints[i].position;
-            drawer.circle(new Position(point.X, point.Y), 4, 0, (2 * Math.PI), true, 2, 'red', null);
-        }
+        if (this.startPosition)
+            drawer.circle(new Position(this.startPosition.X, this.startPosition.Y), 4, 0, (2 * Math.PI), true, 2, 'red', null);
+        if (this.checkPoints)
+            for (var i = 0; i < this.checkPoints.length; i++) {
+                const point = this.checkPoints[i].position;
+                drawer.circle(new Position(point.X, point.Y), 4, 0, (2 * Math.PI), true, 2, 'red', null);
+            }
         if (this.endPoint.position)
             engine.drawer.circle(new Position(this.endPoint.position.X, this.endPoint.position.Y), 4, 0, (2 * Math.PI), true, 2, 'red', null);
     }

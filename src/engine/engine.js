@@ -24,6 +24,8 @@ class Engine {
         this.mouseClicking = false;
         this.keys = [];
         this.isKeyClicked = false;
+        this.clickDelay = true;
+        this.clickDelayCounter = 0.1;
         this.canvas.addEventListener('mousemove', function(e) {
             return this.mousePoint = new Point(e.pageX, e.pageY);
         }.bind(this));
@@ -87,6 +89,15 @@ class Engine {
      * @returns {boolean}
      */
     mouseClicked(button) {
+        if (this.clickDelay) {
+            if (this.clickDelayCounter <= 0) {
+                this.clickDelayCounter = 0.1;
+                return this.mouseButton.includes(button);
+            } else {
+                this.clickDelayCounter -= this.elapsedTime;
+                return false;
+            }
+        }
         return this.mouseButton.includes(button);
     }
 
@@ -96,6 +107,15 @@ class Engine {
      * @returns {boolean}
      */
     keyClicked(key) {
+        if (this.clickDelay) {
+            if (this.clickDelayCounter <= 0) {
+                this.clickDelayCounter = 0.1;
+                return this.keys.includes(key);
+            } else {
+                this.clickDelayCounter -= this.elapsedTime;
+                return false;
+            }
+        }
         return this.keys.includes(key);
     }
 
@@ -263,10 +283,24 @@ class Engine {
         if (gameObject === null || gameObject === undefined)
             return false;
 
-        return (this.mousePosition().X < gameObject.position.X + gameObject.sprite.Width &&
+        return (this.mousePosition().X < gameObject.position.X + gameObject.sprite.width &&
             this.mousePosition().X + 1 > gameObject.position.X &&
-            this.mousePosition().Y < gameObject.position.Y + gameObject.sprite.Height &&
+            this.mousePosition().Y < gameObject.position.Y + gameObject.sprite.height &&
             this.mousePosition().Y + 1 > gameObject.position.Y);
+    }
+
+    /**
+     * Check if the mouse is on top of square
+     * @param {GameObject} gameObject 
+     */
+    mouseOnTopOfPosition(position, size) {
+        if (position === null || position === undefined || size === null || size === undefined)
+            return false;
+
+        return (this.mousePosition().X < position.X + size.width &&
+            this.mousePosition().X + 1 > position.X &&
+            this.mousePosition().Y < position.Y + size.height &&
+            this.mousePosition().Y + 1 > position.Y);
     }
 
     /**
@@ -314,7 +348,7 @@ class Engine {
 
         for (let i = 0; i < this.gameObjects.length; i++) {
             if (this.gameObjects[i].showIt)
-                this.drawer.gameObject(this.gameObjects[i], this.currentCamera);
+                this.drawer.gameObject(this.gameObjects[i], 1, this.currentCamera);
         }
 
         this.executeScenes();
@@ -330,7 +364,7 @@ class Engine {
             for (var i = 0; i < this.currentScene.layers.length; i++) {
                 for (let j = 0; j < this.currentScene.layers[i].layer.gameObjects.length; j++) {
                     if (this.currentScene.layers[i].layer.gameObjects[j].showIt)
-                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j], this.currentCamera);
+                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j], 1, this.currentCamera);
                 }
             }
         }

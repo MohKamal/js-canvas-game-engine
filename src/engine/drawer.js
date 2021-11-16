@@ -52,7 +52,7 @@ class Drawer {
      * @param {Position} position 
      * @returns bool
      */
-    sprite(sprite, position, camera = null) {
+    sprite(sprite, position, opacity = 1, camera = null) {
         if (sprite === null || sprite === undefined) {
             console.error('No valid sprite Sheet was found to be drawed');
             return false;
@@ -63,6 +63,7 @@ class Drawer {
             return false;
         }
 
+        this.ctx.globalAlpha = opacity;
         if (camera !== null) {
             camera.updateMaxPosition();
             if (position.X >= camera.position.X && (position.X + sprite.width) <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
@@ -81,20 +82,45 @@ class Drawer {
      * @param {string} text 
      * @param {Position} position 
      */
-    text(text, position, fontSize = 14, font = 'serif', camera = null) {
-        this.ctx.font = `${fontSize}px ${font}`;
+    text(text, position, fontSize = 14, font = 'serif', style = 'normal', color = 'black', opacity = 1, camera = null) {
+        this.ctx.font = `${style} ${fontSize}px ${font}`;
+        this.ctx.fillStyle = color;
+        this.ctx.strokeStyle = color;
+        this.ctx.globalAlpha = opacity;
+        let lines = text.split('\n');
         if (camera !== null) {
             camera.updateMaxPosition();
             let size = this.ctx.measureText(text);
             if ((position.X >= camera.position.X && (position.X + (size.width / 2)) < camera.maxPosition.X) && (position.Y - fontSize >= camera.position.Y && position.Y < camera.maxPosition.Y)) {
                 if (camera.addOffset) {
-                    this.ctx.fillText(text, position.X + camera.offset.X, position.Y + camera.offset.Y);
+                    if (lines.length > 0) {
+                        for (var i = 0; i < lines.length; i++)
+                            this.ctx.fillText(lines[i], position.X + camera.offset.X, (position.Y + (15 * i)) + camera.offset.Y);
+                    } else
+                        this.ctx.fillText(text, position.X + camera.offset.X, position.Y + camera.offset.Y);
                     return true;
                 }
             }
         }
-        this.ctx.fillText(text, position.X, position.Y);
+        if (lines.length > 0) {
+            for (var i = 0; i < lines.length; i++)
+                this.ctx.fillText(lines[i], position.X, (position.Y + (15 * i)));
+        } else
+            this.ctx.fillText(text, position.X, position.Y);
         return true;
+    }
+
+    /**
+     * Get a text width
+     * @param {String} text 
+     * @param {String} fontSize 
+     * @param {String} font 
+     * @param {String} style 
+     * @returns {Float}
+     */
+    textWidth(text, fontSize = 14, font = 'serif', style = 'normal') {
+        this.ctx.font = `${style} ${fontSize}px ${font}`;
+        return this.ctx.measureText(text).width;
     }
 
     /**
@@ -103,7 +129,7 @@ class Drawer {
      * @param {Position} position 
      * @returns bool
      */
-    spriteSheet(sprite, position, camera = null) {
+    spriteSheet(sprite, position, opacity = 1, camera = null) {
         if (sprite === null || sprite === undefined) {
             console.error('No valid sprite Sheet was found to be drawed');
             return false;
@@ -114,6 +140,7 @@ class Drawer {
             return false;
         }
         sprite.update();
+        this.ctx.globalAlpha = opacity;
         if (camera !== null) {
             camera.updateMaxPosition();
             if (position.X >= camera.position.X && (position.X + sprite.width) <= camera.maxPosition.X && position.Y >= camera.position.Y && position.Y <= camera.maxPosition.Y) {
@@ -132,16 +159,16 @@ class Drawer {
      * @param {GameObject} gameObject 
      * @returns bool
      */
-    gameObject(gameObject, camera = null) {
+    gameObject(gameObject, opacity = 1, camera = null) {
         if (gameObject === null || gameObject === undefined) {
             console.error('No gameObject found to be drawed');
             return false;
         }
         if (!gameObject.hasSimpleSprite) {
-            this.spriteSheet(gameObject.sprite, gameObject.position, camera);
+            this.spriteSheet(gameObject.sprite, gameObject.position, opacity, camera);
             return true;
         }
-        this.sprite(gameObject.sprite, gameObject.position, camera);
+        this.sprite(gameObject.sprite, gameObject.position, opacity, camera);
         return true;
     }
 
@@ -171,10 +198,12 @@ class Drawer {
      * @param {Int} lineWidth 
      * @param {string} color 
      */
-    line(point1, point2, lineWidth = 5, color = 'red', camera = null) {
+    line(point1, point2, lineWidth = 5, color = 'red', opacity = 1, camera = null) {
         // set line stroke and line width
         this.ctx.strokeStyle = color;
+        this.ctx.fillStyle = color;
         this.ctx.lineWidth = lineWidth;
+        this.ctx.globalAlpha = opacity;
         if (camera !== null) {
             camera.updateMaxPosition();
             if (point1.X >= camera.position.X && point1.Y <= camera.position.Y && point2.X <= camera.maxPosition.X && point2.Y <= camera.maxPosition.Y) {
@@ -205,10 +234,13 @@ class Drawer {
      * @param {String} color 
      * @param {Camera} camera 
      */
-    rectangle(position, size, filled = true, lineWidth = 5, color = 'red', camera = null) {
+    rectangle(position, size, filled = true, lineWidth = 5, color = 'red', opacity = 1, camera = null) {
         // set line stroke and line width
+        this.ctx.beginPath();
         this.ctx.strokeStyle = color;
+        this.ctx.fillStyle = color;
         this.ctx.lineWidth = lineWidth;
+        this.ctx.globalAlpha = opacity;
         if (camera !== null) {
             camera.updateMaxPosition();
             if (position.X >= camera.position.X && position.Y <= camera.position.Y && position.X <= camera.maxPosition.X && position.Y <= camera.maxPosition.Y) {
@@ -245,10 +277,12 @@ class Drawer {
      * @param {Camera} camera 
      * @returns {boolean}
      */
-    circle(position, reduis, startAngele = 0, endAngle = -1, filled = true, lineWidth = 5, color = 'red', camera = null) {
+    circle(position, reduis, startAngele = 0, endAngle = -1, filled = true, lineWidth = 5, color = 'red', opacity = 1, camera = null) {
         // set line stroke and line width
         this.ctx.strokeStyle = color;
+        this.ctx.fillStyle = color;
         this.ctx.lineWidth = lineWidth;
+        this.ctx.globalAlpha = opacity;
         if (endAngle === -1) {
             endAngle = 2 * Math.PI;
         }
@@ -281,6 +315,41 @@ class Drawer {
         this.ctx.beginPath();
         this.ctx.arc(position.X, position.Y, reduis, startAngele, endAngle);
         this.ctx.stroke();
+        return true;
+    }
+
+    /**
+     * Color a gredient Regtangle
+     * @param {Position} position 
+     * @param {Size} size 
+     * @param {Point} startPoint 
+     * @param {Point} stopPoint 
+     * @param {String} startColor 
+     * @param {String} stopColor 
+     * @param {Number} opacity 
+     * @param {Camera} camera 
+     * @returns 
+     */
+    gradient(position, size, startPoint, stopPoint, startColor = 'red', stopColor = 'green', opacity = 1, camera = null) {
+        // set line stroke and line width
+        this.ctx.beginPath();
+        this.ctx.globalAlpha = opacity;
+        var gradient = this.ctx.createLinearGradient(startPoint.X, startPoint.Y, stopPoint.X, stopPoint.Y);
+        gradient.addColorStop(0, startColor);
+        gradient.addColorStop(1, stopColor);
+        this.ctx.fillStyle = gradient;
+        if (camera !== null) {
+            camera.updateMaxPosition();
+            if (position.X >= camera.position.X && position.Y <= camera.position.Y && position.X <= camera.maxPosition.X && position.Y <= camera.maxPosition.Y) {
+                if (camera.addOffset) {
+                    this.ctx.fillRect(position.X + camera.offset.X, position.Y + camera.offset.Y, size.width, size.height);
+                    return true;
+                }
+
+            }
+        }
+
+        this.ctx.fillRect(position.X, position.Y, size.width, size.height);
         return true;
     }
 }

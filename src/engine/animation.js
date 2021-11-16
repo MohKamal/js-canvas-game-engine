@@ -30,8 +30,10 @@ class Animation {
      * @returns Animation
      */
     getAnimation(name) {
-        return this.animations.filter(animation => {
+        let animation = this.animations.filter(animation => {
             return animation.name === name;
         })[0];
+        animation.currentFrame = 0;
+        return animation;
     }
 }
