@@ -6,9 +6,12 @@ $(window).on("load", function() {
 
     // Init the Engine
     engine = new Engine(canvas[0]);
+    engine.playMusic = true;
+    engine.sfx = true;
     engine.OnCreate = function() {
         menuScene = new MenuScene(this);
         engine.registerScene(menuScene);
+
     };
     engine.OnUpdate = function(elapsedTime) {
 

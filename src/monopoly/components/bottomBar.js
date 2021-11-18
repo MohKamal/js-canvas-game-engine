@@ -43,6 +43,7 @@ class BottomBar {
         }
         this.movingButton();
         this.openBtn(elapsedTime);
+        this.checkPosition();
     }
 
     setPlayer(player) {
@@ -275,6 +276,15 @@ class BottomBar {
             this.closeBar = false;
             this.isOpen = false;
             this.openButtonSprite.loadImage('./assets/sprites/buttons/viewCads.png');
+        }
+    }
+
+    checkPosition() {
+        if (this.position.Y > this.maxPositionY && this.isOpen && !this.isMoving) {
+            this.position = new Position(5, this.maxPositionY);
+        }
+        if (this.position.Y < this.engine.screenSize().height && !this.isOpen && !this.isMoving) {
+            this.position = new Position(5, this.engine.screenSize().height);
         }
     }
 

@@ -21,6 +21,9 @@ class Map {
         this.chestCardsSprites = new Sprite(256, 128);
         this.chestCardsSprites.loadImage('./assets/sprites/board/community_chest_cards.png');
 
+        this.sirenAnimation = new SpriteSheet('siren', 800, 150, 20, 0, 2, './assets/sprites/siren.png', false);
+        this.canPlaySirenAnimation = false;
+
         this.messageBox = new MessageBox(this.engine, this);
 
         this.bottomBar = new BottomBar(this.engine, this.messageBox, this);
@@ -76,7 +79,8 @@ class Map {
         player2.piece = car;
         car.owner = player2;
         this.players.push(player2);
-        this.backgroundMusic.play();
+        if (this.engine.playMusic)
+            this.backgroundMusic.play();
         this.initDices();
         this.giveTurn();
 
@@ -117,13 +121,13 @@ class Map {
                 }
             }
             if (double) {
-                if (this.doubleCount < 3) {
+                if (this.doubleCount < 2) {
                     this.doubleCount++;
                 } else {
                     this.messageBox.simple(`You are going to Jail, you had 3 doubles in a row.`, function() { this.messageBox.remove(); }.bind(this), 400, 200);
                     this.doubleCount = 0;
                     this.currentPlayer.inJail = true;
-                    this.gotToJail(this.currentPlayer.piece);
+                    this.goToJail(this.currentPlayer.piece);
                     return true;
                 }
             } else
@@ -131,7 +135,8 @@ class Map {
             this.movePiece(this.currentPlayer.piece, this.totalSteps, true, double);
             return true;
         }
-        this.dicesSound.play();
+        if (this.engine.sfx)
+            this.dicesSound.play();
         for (var d = 0; d < 2; d++) {
             if (this.dices[d].isStoped && this.dices[d].selectedNumber < 0)
                 this.dices[d].throwDice();
@@ -159,7 +164,8 @@ class Map {
             if (this.engine.mouseOnTopOf(this.throwButton)) {
                 this.throwButtonSprite.loadImage('./assets/sprites/buttons/throw_on.png');
                 if (this.engine.mouseClicked(MouseButton.LEFT) && !this.isDicesThrowing && this.canThrow) {
-                    this.clickSound.play();
+                    if (this.engine.sfx)
+                        this.clickSound.play();
                     this.isDicesThrowing = true;
                     this.canThrow = false;
                 }
@@ -171,7 +177,8 @@ class Map {
             if (this.engine.mouseOnTopOf(this.endTurnButton)) {
                 this.endButtonSprite.loadImage('./assets/sprites/buttons/end_turn_on.png');
                 if (this.engine.mouseClicked(MouseButton.LEFT) && !this.isDicesThrowing && !this.canThrow) {
-                    this.clickSound.play();
+                    if (this.engine.sfx)
+                        this.clickSound.play();
                     this.endTurn();
                 }
 
@@ -210,6 +217,7 @@ class Map {
         }
         this.bottomBar.display(elapsedTime);
         this.sidePlayers.display(elapsedTime);
+        this.playSirenAnimation();
         if (this.messageBox)
             this.messageBox.draw();
     }
@@ -226,6 +234,9 @@ class Map {
         piece.geoAnimation.endAt(newPosition, 200, function() {
             piece.moving = false;
             this.checkPieceCurrentTile(piece, double);
+            if (this.currentPlayer.inJail) {
+                this.canPlaySirenAnimation = false;
+            }
         }.bind(this));
         piece.moving = true;
     }
@@ -240,7 +251,7 @@ class Map {
                 this.currentPlayer.solde += 200;
                 this.checkForDouble(double);
             } else if (currentTile.type === TileType.GOTOJAIL) {
-                this.gotToJail(piece);
+                this.goToJail(piece);
                 this.currentPlayer.inJail = true;
                 this.messageBox.simple(`You going to jail!!!`, function() { this.messageBox.remove(); }.bind(this));
             } else if (currentTile.type === TileType.LAND || currentTile.type === TileType.RAILROAD || currentTile.type === TileType.COMPANY) {
@@ -319,7 +330,8 @@ class Map {
         if (required) { button2 = null; }
         if (this.currentPlayer.totalValueForNeedingMoney() >= objectAction.value) {
             this.shortOnMoney = true;
-            this.notifSound.play();
+            if (this.engine.sfx)
+                this.notifSound.play();
             this.messageBox.custom('You need more money, sell or mortgage, your choice.', {
                 imageOn: './assets/sprites/buttons/mortgage_on.png',
                 imageOff: './assets/sprites/buttons/mortgage_off.png',
@@ -349,7 +361,8 @@ class Map {
             let offerTile = this.currentPlayer.myOffers[i].tile;
             let buyer = this.currentPlayer.myOffers[i].buyer;
             if (buyer.solde >= offerTile.purchaseValue * 2) {
-                this.notifSound.play();
+                if (this.engine.sfx)
+                    this.notifSound.play();
                 this.messageBox.custom(`${buyer.name} want to buy ${offerTile.streetName} for $${offerTile.purchaseValue * 2}, sell?`, {
                     imageOn: './assets/sprites/buttons/sell_on.png',
                     imageOff: './assets/sprites/buttons/sell_off.png',
@@ -403,22 +416,34 @@ class Map {
 
     checkForDouble(double) {
         if (double) {
-            if (this.doubleCount < 3) {
+            if (this.doubleCount < 2) {
                 this.messageBox.simple(`You have a double`, function() { this.messageBox.remove(); }.bind(this));
-                this.payedSound.play();
+                if (this.engine.sfx)
+                    this.payedSound.play();
                 this.canEnd = false;
                 this.canThrow = true;
             } else {
-                this.gotToJail(this.currentPlayer.piece);
+                this.messageBox.simple(`You going to jail!!!`, function() { this.messageBox.remove(); }.bind(this));
+                this.goToJail(this.currentPlayer.piece);
+                this.currentPlayer.inJail = true;
             }
         }
     }
 
-    gotToJail(piece) {
+    goToJail(piece) {
         if (piece) {
-            this.jailSound.play();
+            if (this.engine.sfx)
+                this.jailSound.play();
+            this.canPlaySirenAnimation = true;
             let jailPosition = new Position(10, 10);
-            let dist = parseInt(Math.abs(piece.cartesianPosition.X - jailPosition.X) + Math.abs(piece.cartesianPosition.Y - jailPosition.Y));
+            console.log(piece.cartesianPosition);
+            console.log(jailPosition);
+            let dist = 0;
+            if (piece.cartesianPosition.Y == 10)
+                dist = parseInt(Math.abs(jailPosition.X - piece.cartesianPosition.X) + Math.abs(jailPosition.Y - piece.cartesianPosition.Y));
+            else
+                dist = parseInt(Math.abs(piece.cartesianPosition.X - jailPosition.X) + Math.abs(piece.cartesianPosition.Y - jailPosition.Y));
+            console.log(dist);
             this.movePiece(piece, dist, false, false);
         }
     }
@@ -433,6 +458,7 @@ class Map {
         this.messageBox.simple(typeCards[index].text, function() {
             if (typeCards[index].action())
                 this.messageBox.remove();
+            this.checkForDouble(double);
         }.bind(this));
     }
 
@@ -462,7 +488,8 @@ class Map {
 
     payRent(tile) {
         if (tile) {
-            this.failedSound.play();
+            if (this.engine.sfx)
+                this.failedSound.play();
             this.currentPlayer.solde -= tile.getRent();
             tile.owner.solde += tile.getRent();
         }
@@ -470,7 +497,8 @@ class Map {
 
     payTax(tile) {
         if (tile) {
-            this.failedSound.play();
+            if (this.engine.sfx)
+                this.failedSound.play();
             this.currentPlayer.solde -= tile.purchaseValue;
         }
     }
@@ -624,7 +652,8 @@ class Map {
                 if (this.shortOnMoney) {
                     this.messageBox.simple(`Now your solde is $${this.currentPlayer.solde}, you can pay Now!`, function() {
                         this.executeAfterShort(this.afterGotMoneyObject);
-                        this.payedSound.play();
+                        if (this.engine.sfx)
+                            this.payedSound.play();
                         this.messageBox.remove();
                     }.bind(this), 400, 150);
                     this.shortOnMoney = false;
@@ -742,6 +771,13 @@ class Map {
             });
         } else {
             this.needMoney({ action: 'jail', value: '50' });
+        }
+    }
+
+    playSirenAnimation() {
+        if (this.canPlaySirenAnimation) {
+            this.sirenAnimation.update();
+            this.engine.drawer.spriteSheet(this.sirenAnimation, new Position((this.engine.screenSize().width / 2) - 400, (this.engine.screenSize().height / 2) - 75));
         }
     }
 }
