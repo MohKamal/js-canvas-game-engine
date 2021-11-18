@@ -2,6 +2,7 @@ class MessageBox {
     constructor(engine, game) {
         this.message = '';
         this.engine = engine;
+        this.isOpen = false;
         this.ok = new Sprite(200, 50);
 
         this.game = game;
@@ -15,6 +16,9 @@ class MessageBox {
         this.message = '';
         this.callback = null;
         this.size = new Size(300, 200);
+
+        this.clickSound = new Sound('./assets/audio/click.mp3', 80);
+
     }
 
     simple(message, callback = null, width = 300, height = 200) {
@@ -50,12 +54,15 @@ class MessageBox {
         this.no.image = null;
         this.size = new Size(300, 200);
         this.game.canEnd = true;
+        this.isOpen = false;
     }
 
     draw() {
         if (this.type == 'none') {
+            this.isOpen = false;
             // 
         } else if (this.type == 'simple') {
+            this.isOpen = true;
             let x = (this.engine.screenSize().width / 2) - (this.size.width / 2);
             let y = (this.engine.screenSize().height / 2) - (this.size.height / 2);
             this.engine.drawer.rectangle(new Position(0, 0), this.engine.screenSize(), true, 5, 'gray', 0.8);
@@ -71,6 +78,7 @@ class MessageBox {
                 if (this.engine.mouseOnTopOfPosition(new Position(bx, by), new Size(200, 50))) {
                     this.ok.loadImage('./assets/sprites/buttons/ok_on.png');
                     if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                        this.clickSound.play();
                         if (this.callback)
                             this.callback();
                     }
@@ -80,6 +88,7 @@ class MessageBox {
                 this.engine.drawer.sprite(this.ok, new Position(bx, by));
             }
         } else {
+            this.isOpen = true;
             let x = (this.engine.screenSize().width / 2) - (this.size.width / 2);
             let y = (this.engine.screenSize().height / 2) - (this.size.height / 2);
 
@@ -99,6 +108,7 @@ class MessageBox {
                 if (this.engine.mouseOnTopOfPosition(new Position(bx1, by1), new Size(200, 50))) {
                     this.yes.loadImage(this.button1.imageOn);
                     if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                        this.clickSound.play();
                         if (this.button1.callback)
                             this.button1.callback();
                     }
@@ -112,6 +122,7 @@ class MessageBox {
                 if (this.engine.mouseOnTopOfPosition(new Position(bx2, by1), new Size(200, 50))) {
                     this.no.loadImage(this.button2.imageOn);
                     if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                        this.clickSound.play();
                         if (this.button2.callback)
                             this.button2.callback();
                     }

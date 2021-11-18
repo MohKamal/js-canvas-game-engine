@@ -1,12 +1,13 @@
 class BottomBar {
 
-    constructor(engine, messageBox) {
+    constructor(engine, messageBox, game) {
         this.engine = engine;
         this.messageBox = messageBox;
         this.maxPositionY = this.engine.screenSize().height - 300;
         this.position = new Position(5, this.engine.screenSize().height);
         this.isOpen = false;
         this.isMoving = false;
+        this.game = game;
 
         this.openButtonSprite = new Sprite(200, 50);
         this.openButtonSprite.loadImage('./assets/sprites/buttons/viewCads.png');
@@ -112,56 +113,109 @@ class BottomBar {
 
     utilsButtons(property) {
         if (property) {
-            let btnMortgageSprite = new Sprite(48, 16);
+            let btnMortgageSprite = new Sprite(64, 24);
             btnMortgageSprite.loadImage('./assets/sprites/buttons/small_mortgage_off.png');
 
-            let btnSellSprite = new Sprite(48, 16);
+            let btnBuildSprite = new Sprite(64, 24);
+            btnBuildSprite.loadImage('./assets/sprites/buttons/build_off.png');
+
+            let btnSellSprite = new Sprite(64, 24);
             btnSellSprite.loadImage('./assets/sprites/buttons/small_sell_off.png');
 
             let btnPaySprite = new Sprite(128, 32);
             btnPaySprite.loadImage('./assets/sprites/buttons/pay_mortgage_off.png');
 
             let btnMortgage = new GameObject(btnMortgageSprite, new Position(property.position.X + 30, property.position.Y + 180));
-            let btnSell = new GameObject(btnSellSprite, new Position(property.position.X + 110, property.position.Y + 180));
+            let btnSell = new GameObject(btnSellSprite, new Position(property.position.X + 30, property.position.Y + 180));
+            let btnBuild = new GameObject(btnBuildSprite, new Position(property.position.X + 110, property.position.Y + 180));
             let btnPay = new GameObject(btnPaySprite, new Position(property.position.X + 40, property.position.Y + 130));
-            if (property.tile.numberHouses <= 0) {
-                if (!property.tile.mortgage) {
-                    if (this.engine.mouseOnTopOf(btnMortgage)) {
-                        btnMortgageSprite.loadImage('./assets/sprites/buttons/small_mortgage_on.png');
-                        if (this.engine.mouseClicked(MouseButton.LEFT)) {
-                            if (this.currentPlayer.mortgageTileById(property.tile.id)) {
-                                this.messageBox.simple(`${property.tile.streetName} is Mortgage, you receive $${property.tile.getMortgageValue()}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+            if (this.currentPlayer.name === this.game.currentPlayer.name) {
+                if (property.tile.numberHouses <= 0) {
+                    if (this.currentPlayer.canMortgagaTile(property.tile)) {
+                        if (this.engine.mouseOnTopOf(btnMortgage)) {
+                            btnMortgageSprite.loadImage('./assets/sprites/buttons/small_mortgage_on.png');
+                            if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                                if (this.currentPlayer.mortgageTileById(property.tile.id)) {
+                                    this.messageBox.simple(`${property.tile.streetName} is Mortgage, you receive $${property.tile.getMortgageValue()}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                                }
                             }
+                        } else {
+                            btnMortgageSprite.loadImage('./assets/sprites/buttons/small_mortgage_off.png');
                         }
-                    } else {
-                        btnMortgageSprite.loadImage('./assets/sprites/buttons/small_mortgage_off.png');
+                        this.engine.drawer.gameObject(btnMortgage);
+                    }
+                    if (property.tile.mortgage) {
+                        if (this.engine.mouseOnTopOf(btnPay)) {
+                            btnPaySprite.loadImage('./assets/sprites/buttons/pay_mortgage_on.png');
+                            if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                                if (this.currentPlayer.payMortgageTileById(property.tile.id)) {
+                                    this.messageBox.simple(`${property.tile.streetName} is no more Mortgage, you payed $${property.tile.getMortgagePayement()}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                                }
+                            }
+                        } else {
+                            btnPaySprite.loadImage('./assets/sprites/buttons/pay_mortgage_off.png');
+                        }
+                        this.engine.drawer.gameObject(btnPay);
+                    }
+                }
+
+                if (!property.tile.mortgage && property.tile.type === TileType.LAND) {
+                    if (this.currentPlayer.canBuildOnTile(property.tile)) {
+                        if (this.engine.mouseOnTopOf(btnBuild)) {
+                            btnBuildSprite.loadImage('./assets/sprites/buttons/build_on.png');
+                            if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                                // build
+                                if (this.currentPlayer.solde >= property.tile.houseContruction) {
+                                    if (this.currentPlayer.buildHouse(property.tile.id)) {
+                                        this.messageBox.simple(`You built another property on ${property.tile.streetName}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                                    } else {
+                                        this.messageBox.simple(`You can't built another property on ${property.tile.streetName}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                                    }
+                                }
+                            }
+                        } else {
+                            btnBuildSprite.loadImage('./assets/sprites/buttons/build_off.png');
+                        }
+                        this.engine.drawer.gameObject(btnBuild);
                     }
 
-                    if (this.engine.mouseOnTopOf(btnSell)) {
-                        btnSellSprite.loadImage('./assets/sprites/buttons/small_sell_on.png');
-                        if (this.engine.mouseClicked(MouseButton.LEFT)) {
-                            // Sell
-                        }
-                    } else {
-                        btnSellSprite.loadImage('./assets/sprites/buttons/small_sell_off.png');
-                    }
-
-                    this.engine.drawer.gameObject(btnSell);
-                    this.engine.drawer.gameObject(btnMortgage);
-                } else {
-                    if (this.engine.mouseOnTopOf(btnPay)) {
-                        btnPaySprite.loadImage('./assets/sprites/buttons/pay_mortgage_on.png');
-                        if (this.engine.mouseClicked(MouseButton.LEFT)) {
-                            if (this.currentPlayer.payMortgageTileById(property.tile.id)) {
-                                this.messageBox.simple(`${property.tile.streetName} is no more Mortgage, you payed $${property.tile.getMortgagePayement()}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                    if (property.tile.numberHouses > 0) {
+                        if (this.engine.mouseOnTopOf(btnSell)) {
+                            btnSellSprite.loadImage('./assets/sprites/buttons/small_sell_on.png');
+                            if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                                // build
+                                if (this.currentPlayer.solde >= property.tile.houseContruction) {
+                                    if (this.currentPlayer.sellHouse(property.tile.id)) {
+                                        this.messageBox.simple(`You built another property on ${property.tile.streetName}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                                    } else {
+                                        this.messageBox.simple(`You can't built another property on ${property.tile.streetName}.`, function() { this.messageBox.remove(); }.bind(this), 500, 200);
+                                    }
+                                }
                             }
+                        } else {
+                            btnSellSprite.loadImage('./assets/sprites/buttons/small_sell_off.png');
+                        }
+                        this.engine.drawer.gameObject(btnSell);
+                    }
+                }
+            } else {
+                if (this.currentPlayer.solde >= (property.tile.purchaseValue * 2) && this.currentPlayer.canSellTile(this.game.currentPlayer, property.tile) && property.tile.numberHouses <= 0) {
+                    let btnBuyeSprite = new Sprite(64, 24);
+                    btnBuyeSprite.loadImage('./assets/sprites/buttons/small_buy_off.png');
+                    let btnBuy = new GameObject(btnBuyeSprite, new Position(property.position.X + 30, property.position.Y + 180));
+                    if (this.engine.mouseOnTopOf(btnBuy)) {
+                        btnBuyeSprite.loadImage('./assets/sprites/buttons/small_buy_on.png');
+                        if (this.engine.mouseClicked(MouseButton.LEFT)) {
+                            let offer = new BuyingOffer(this.game.currentPlayer, property.tile);
+                            this.currentPlayer.addOffer(offer);
                         }
                     } else {
-                        btnPaySprite.loadImage('./assets/sprites/buttons/pay_mortgage_off.png');
+                        btnBuyeSprite.loadImage('./assets/sprites/buttons/small_buy_off.png');
                     }
-                    this.engine.drawer.gameObject(btnPay);
+                    this.engine.drawer.gameObject(btnBuy);
                 }
             }
+
         }
     }
 

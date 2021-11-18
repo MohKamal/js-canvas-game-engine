@@ -15,10 +15,10 @@ class Cards {
         let c1 = new Card('You pay $100 for travalling', 'chance', this.game);
         c1.action = function() {
             if (this.player.solde >= 100) {
+                this.game.failedSound.play();
                 this.player.solde -= 100;
                 return true;
             } else {
-                console.log('does he need money');
                 this.game.needMoney({ action: 'pay', value: 100, required: true });
                 return false;
             }

@@ -5,15 +5,16 @@ class MenuScene extends Scene {
         this.counter = 0;
         this.spritePlay = new Sprite(200, 50);
         this.spritePlay.loadImage('./../assets/sprites/buttons/play_off.png');
+        this.music = new Sound('./assets/audio/main_menu.mp3', 50, true);
     }
 
     OnCreate() {
-
+        this.music.play();
     }
 
     OnUpdate(elapsedTime) {
         this.engine.drawer.sprite(this.spritePlay, new Position((this.engine.screenSize().width / 2) - 100, 300));
-
+        console.log(this.music.audioObject.src);
         this.counter += elapsedTime;
         if (this.engine.mouseOnTopOfPosition(new Position((this.engine.screenSize().width / 2) - 100, 300), new Size(200, 50))) {
             this.spritePlay.loadImage('./assets/sprites/buttons/play_on.png');
@@ -28,5 +29,9 @@ class MenuScene extends Scene {
         } else {
             this.spritePlay.loadImage('./assets/sprites/buttons/play_off.png');
         }
+    }
+
+    OnDestroy() {
+        this.music.stop();
     }
 }

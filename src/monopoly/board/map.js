@@ -23,9 +23,10 @@ class Map {
 
         this.messageBox = new MessageBox(this.engine, this);
 
-        this.bottomBar = new BottomBar(this.engine, this.messageBox);
+        this.bottomBar = new BottomBar(this.engine, this.messageBox, this);
 
         this.cards = new Cards(this);
+        this.sidePlayers = new PlayerSideBar(this.engine, this);
 
         this.lastStep = 0.5;
         this.timeBetweenSteps = 0.1;
@@ -41,6 +42,14 @@ class Map {
         this.lockNeedMoney = false;
         this.shortOnMoney = false;
         this.afterGotMoneyObject = { action: 'rent', value: 50 };
+
+        this.clickSound = new Sound('./assets/audio/click.mp3', 80);
+        this.dicesSound = new Sound('./assets/audio/dices.mp3', 80);
+        this.notifSound = new Sound('./assets/audio/notif.wav', 80);
+        this.payedSound = new Sound('./assets/audio/payed.wav', 80);
+        this.jailSound = new Sound('./assets/audio/jail.mp3', 30);
+        this.failedSound = new Sound('./assets/audio/failed.mp3', 10);
+        this.backgroundMusic = new Sound('./assets/audio/background.mp3', 6, true);
     }
 
     OnCreate() {
@@ -67,10 +76,10 @@ class Map {
         player2.piece = car;
         car.owner = player2;
         this.players.push(player2);
-
+        this.backgroundMusic.play();
         this.initDices();
         this.giveTurn();
-        this.engine.drawer.text(`Turn to: ${this.currentPlayer.name}`, new Position(10, 30));
+
     }
 
     initDices() {
@@ -111,7 +120,7 @@ class Map {
                 if (this.doubleCount < 3) {
                     this.doubleCount++;
                 } else {
-                    this.messageBox.simple(`You are going to Jail, you had 3 doubles in a row.`, function() { this.messageBox.remove(); }.bind(this));
+                    this.messageBox.simple(`You are going to Jail, you had 3 doubles in a row.`, function() { this.messageBox.remove(); }.bind(this), 400, 200);
                     this.doubleCount = 0;
                     this.currentPlayer.inJail = true;
                     this.gotToJail(this.currentPlayer.piece);
@@ -122,7 +131,7 @@ class Map {
             this.movePiece(this.currentPlayer.piece, this.totalSteps, true, double);
             return true;
         }
-
+        this.dicesSound.play();
         for (var d = 0; d < 2; d++) {
             if (this.dices[d].isStoped && this.dices[d].selectedNumber < 0)
                 this.dices[d].throwDice();
@@ -146,10 +155,11 @@ class Map {
         }
 
         // Draw Throw button
-        if (this.canThrow && !this.lockNeedMoney) {
+        if (this.canThrow && !this.lockNeedMoney && !this.messageBox.isOpen) {
             if (this.engine.mouseOnTopOf(this.throwButton)) {
                 this.throwButtonSprite.loadImage('./assets/sprites/buttons/throw_on.png');
                 if (this.engine.mouseClicked(MouseButton.LEFT) && !this.isDicesThrowing && this.canThrow) {
+                    this.clickSound.play();
                     this.isDicesThrowing = true;
                     this.canThrow = false;
                 }
@@ -157,10 +167,11 @@ class Map {
             } else
                 this.throwButtonSprite.loadImage('./assets/sprites/buttons/throw_off.png');
             this.engine.drawer.gameObject(this.throwButton);
-        } else if (!this.canThrow && this.canEnd && !this.lockNeedMoney) {
+        } else if (!this.canThrow && this.canEnd && !this.lockNeedMoney && !this.messageBox.isOpen) {
             if (this.engine.mouseOnTopOf(this.endTurnButton)) {
                 this.endButtonSprite.loadImage('./assets/sprites/buttons/end_turn_on.png');
                 if (this.engine.mouseClicked(MouseButton.LEFT) && !this.isDicesThrowing && !this.canThrow) {
+                    this.clickSound.play();
                     this.endTurn();
                 }
 
@@ -191,8 +202,14 @@ class Map {
         // Draw Houses
         this.drawBoardHouses();
 
-        this.bottomBar.setPlayer(this.currentPlayer);
+        if (this.sidePlayers.viewedPlayer) {
+            this.bottomBar.setPlayer(this.sidePlayers.viewedPlayer);
+
+        } else {
+            this.bottomBar.setPlayer(this.currentPlayer);
+        }
         this.bottomBar.display(elapsedTime);
+        this.sidePlayers.display(elapsedTime);
         if (this.messageBox)
             this.messageBox.draw();
     }
@@ -290,8 +307,19 @@ class Map {
 
     needMoney(objectAction, double = false) {
         let required = objectAction.required ? objectAction.required : false;
+        let button2 = {
+            imageOn: './assets/sprites/buttons/no_on.png',
+            imageOff: './assets/sprites/buttons/no_off.png',
+            callback: function() {
+                this.checkForDouble(double);
+                this.messageBox.remove();
+            }.bind(this)
+        };
+
+        if (required) { button2 = null; }
         if (this.currentPlayer.totalValueForNeedingMoney() >= objectAction.value) {
             this.shortOnMoney = true;
+            this.notifSound.play();
             this.messageBox.custom('You need more money, sell or mortgage, your choice.', {
                 imageOn: './assets/sprites/buttons/mortgage_on.png',
                 imageOff: './assets/sprites/buttons/mortgage_off.png',
@@ -301,14 +329,7 @@ class Map {
                     this.checkForDouble(double);
                     this.messageBox.remove();
                 }.bind(this)
-            }, {
-                imageOn: './assets/sprites/buttons/no_on.png',
-                imageOff: './assets/sprites/buttons/no_off.png',
-                callback: function() {
-                    this.checkForDouble(double);
-                    this.messageBox.remove();
-                }.bind(this)
-            });
+            }, button2);
         } else {
             if (required) {
                 this.messageBox.simple('You need more money, but you don\'t have any more properties.\nYour are Bankrupt.', function() {
@@ -321,6 +342,38 @@ class Map {
                 this.checkForDouble(double);
             }
         }
+    }
+
+    verifyBuyingOffers() {
+        for (var i = 0; i < this.currentPlayer.myOffers.length; i++) {
+            let offerTile = this.currentPlayer.myOffers[i].tile;
+            let buyer = this.currentPlayer.myOffers[i].buyer;
+            if (buyer.solde >= offerTile.purchaseValue * 2) {
+                this.notifSound.play();
+                this.messageBox.custom(`${buyer.name} want to buy ${offerTile.streetName} for $${offerTile.purchaseValue * 2}, sell?`, {
+                    imageOn: './assets/sprites/buttons/sell_on.png',
+                    imageOff: './assets/sprites/buttons/sell_off.png',
+                    callback: function() {
+                        this.currentPlayer.tiles = this.currentPlayer.tiles.filter(tile => {
+                            return tile.id != offerTile.id;
+                        });
+                        offerTile.owner = buyer;
+                        buyer.tiles.push(offerTile);
+                        buyer.solde -= offerTile.purchaseValue * 2;
+                        this.currentPlayer.solde += offerTile.purchaseValue * 2;
+                        this.messageBox.remove();
+                    }.bind(this)
+                }, {
+                    imageOn: './assets/sprites/buttons/no_on.png',
+                    imageOff: './assets/sprites/buttons/no_off.png',
+                    callback: function() {
+                        this.messageBox.remove();
+                    }.bind(this)
+                });
+            }
+        }
+
+        this.currentPlayer.clearOffers();
     }
 
     bankrupt(action) {
@@ -352,6 +405,7 @@ class Map {
         if (double) {
             if (this.doubleCount < 3) {
                 this.messageBox.simple(`You have a double`, function() { this.messageBox.remove(); }.bind(this));
+                this.payedSound.play();
                 this.canEnd = false;
                 this.canThrow = true;
             } else {
@@ -362,6 +416,7 @@ class Map {
 
     gotToJail(piece) {
         if (piece) {
+            this.jailSound.play();
             let jailPosition = new Position(10, 10);
             let dist = parseInt(Math.abs(piece.cartesianPosition.X - jailPosition.X) + Math.abs(piece.cartesianPosition.Y - jailPosition.Y));
             this.movePiece(piece, dist, false, false);
@@ -407,6 +462,7 @@ class Map {
 
     payRent(tile) {
         if (tile) {
+            this.failedSound.play();
             this.currentPlayer.solde -= tile.getRent();
             tile.owner.solde += tile.getRent();
         }
@@ -414,6 +470,7 @@ class Map {
 
     payTax(tile) {
         if (tile) {
+            this.failedSound.play();
             this.currentPlayer.solde -= tile.purchaseValue;
         }
     }
@@ -567,6 +624,7 @@ class Map {
                 if (this.shortOnMoney) {
                     this.messageBox.simple(`Now your solde is $${this.currentPlayer.solde}, you can pay Now!`, function() {
                         this.executeAfterShort(this.afterGotMoneyObject);
+                        this.payedSound.play();
                         this.messageBox.remove();
                     }.bind(this), 400, 150);
                     this.shortOnMoney = false;
@@ -654,11 +712,13 @@ class Map {
     }
 
     endTurn() {
+        this.sidePlayers.viewedPlayer = null;
         this.giveTurn();
         // check jail
         if (this.currentPlayer.inJail) {
             this.bailOut();
         }
+        this.verifyBuyingOffers();
         this.canThrow = true;
     }
 
