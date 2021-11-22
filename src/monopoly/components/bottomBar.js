@@ -200,7 +200,7 @@ class BottomBar {
                     }
                 }
             } else {
-                if (this.currentPlayer.solde >= (property.tile.purchaseValue * 2) && this.currentPlayer.canSellTile(this.game.currentPlayer, property.tile) && property.tile.numberHouses <= 0) {
+                if (this.currentPlayer.solde >= (property.tile.purchaseValue * 3) && this.currentPlayer.canSellTile(this.game.currentPlayer, property.tile) && property.tile.numberHouses <= 0) {
                     let btnBuyeSprite = new Sprite(64, 24);
                     btnBuyeSprite.loadImage('./assets/sprites/buttons/small_buy_off.png');
                     let btnBuy = new GameObject(btnBuyeSprite, new Position(property.position.X + 30, property.position.Y + 180));

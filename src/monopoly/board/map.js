@@ -48,7 +48,7 @@ class Map {
 
         this.clickSound = new Sound('./assets/audio/click.mp3', 80);
         this.dicesSound = new Sound('./assets/audio/dices.mp3', 80);
-        this.notifSound = new Sound('./assets/audio/notif.wav', 80);
+        this.notifSound = new Sound('./assets/audio/notif.wav', 10);
         this.payedSound = new Sound('./assets/audio/payed.wav', 80);
         this.jailSound = new Sound('./assets/audio/jail.mp3', 30);
         this.failedSound = new Sound('./assets/audio/failed.mp3', 10);
@@ -121,12 +121,13 @@ class Map {
                 }
             }
             if (double) {
-                if (this.doubleCount < 2) {
+                if (this.doubleCount < 3) {
                     this.doubleCount++;
                 } else {
                     this.messageBox.simple(`You are going to Jail, you had 3 doubles in a row.`, function() { this.messageBox.remove(); }.bind(this), 400, 200);
                     this.doubleCount = 0;
                     this.currentPlayer.inJail = true;
+                    this.canPlaySirenAnimation = true;
                     this.goToJail(this.currentPlayer.piece);
                     return true;
                 }
@@ -234,7 +235,7 @@ class Map {
         piece.geoAnimation.endAt(newPosition, 200, function() {
             piece.moving = false;
             this.checkPieceCurrentTile(piece, double);
-            if (this.currentPlayer.inJail) {
+            if (this.canPlaySirenAnimation) {
                 this.canPlaySirenAnimation = false;
             }
         }.bind(this));
@@ -253,6 +254,7 @@ class Map {
             } else if (currentTile.type === TileType.GOTOJAIL) {
                 this.goToJail(piece);
                 this.currentPlayer.inJail = true;
+                this.doubleCount = 0;
                 this.messageBox.simple(`You going to jail!!!`, function() { this.messageBox.remove(); }.bind(this));
             } else if (currentTile.type === TileType.LAND || currentTile.type === TileType.RAILROAD || currentTile.type === TileType.COMPANY) {
                 if (currentTile.owner) {
@@ -372,8 +374,8 @@ class Map {
                         });
                         offerTile.owner = buyer;
                         buyer.tiles.push(offerTile);
-                        buyer.solde -= offerTile.purchaseValue * 2;
-                        this.currentPlayer.solde += offerTile.purchaseValue * 2;
+                        buyer.solde -= offerTile.purchaseValue * 3;
+                        this.currentPlayer.solde += offerTile.purchaseValue * 3;
                         this.messageBox.remove();
                     }.bind(this)
                 }, {
@@ -416,7 +418,7 @@ class Map {
 
     checkForDouble(double) {
         if (double) {
-            if (this.doubleCount < 2) {
+            if (this.doubleCount < 3) {
                 this.messageBox.simple(`You have a double`, function() { this.messageBox.remove(); }.bind(this));
                 if (this.engine.sfx)
                     this.payedSound.play();
@@ -426,6 +428,7 @@ class Map {
                 this.messageBox.simple(`You going to jail!!!`, function() { this.messageBox.remove(); }.bind(this));
                 this.goToJail(this.currentPlayer.piece);
                 this.currentPlayer.inJail = true;
+                this.doubleCount = 0;
             }
         }
     }
