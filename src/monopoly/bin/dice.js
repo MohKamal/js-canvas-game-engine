@@ -61,7 +61,7 @@ class Dice extends GameObject {
             }
             this.isStoped = true;
             this.initAnimation(false);
-        }.bind(this));
+        }.bind(this), 2);
 
         let animation = new Animation();
         animation.registerAnimation(one);

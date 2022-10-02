@@ -8,6 +8,7 @@ class Player {
         this.InJail = false;
         this.doubleCount = 0;
         this.myOffers = [];
+        this.isCPU = false;
     }
 
     addOffer(offer) {

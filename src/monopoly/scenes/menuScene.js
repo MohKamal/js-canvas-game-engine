@@ -5,10 +5,12 @@ class MenuScene extends Scene {
         this.spritePlay = new Sprite(200, 50);
         this.spritePlay.loadImage('./../assets/sprites/buttons/play_off.png');
         this.music = new Sound('./assets/audio/main_menu.mp3', 50, true);
+
     }
 
     OnCreate() {
-        this.music.play();
+        if (this.engine.playMusic)
+            this.music.play();
         this.clickSound = new Sound('./assets/audio/click.mp3', 80);
     }
 
@@ -20,16 +22,18 @@ class MenuScene extends Scene {
             if (this.engine.mouseClicked(MouseButton.LEFT)) {
                 if (this.engine.sfx)
                     this.clickSound.play();
-                this.ended();
                 let gameScene = new GameScene(this.engine);
                 this.engine.goToScene(gameScene);
+                this.ended();
             }
         } else {
             this.spritePlay.loadImage('./assets/sprites/buttons/play_off.png');
         }
+
     }
 
     OnDestroy() {
         this.music.stop();
     }
+
 }

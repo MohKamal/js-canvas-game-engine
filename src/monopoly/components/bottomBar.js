@@ -130,7 +130,7 @@ class BottomBar {
             let btnSell = new GameObject(btnSellSprite, new Position(property.position.X + 30, property.position.Y + 180));
             let btnBuild = new GameObject(btnBuildSprite, new Position(property.position.X + 110, property.position.Y + 180));
             let btnPay = new GameObject(btnPaySprite, new Position(property.position.X + 40, property.position.Y + 130));
-            if (this.currentPlayer.name === this.game.currentPlayer.name) {
+            if (this.currentPlayer.name === this.game.currentPlayer.name && !this.game.currentPlayer.isCPU) {
                 if (property.tile.numberHouses <= 0) {
                     if (this.currentPlayer.canMortgagaTile(property.tile)) {
                         if (this.engine.mouseOnTopOf(btnMortgage)) {

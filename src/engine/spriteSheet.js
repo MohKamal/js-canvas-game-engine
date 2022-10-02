@@ -1,10 +1,11 @@
 class SpriteSheet extends Sprite {
 
-    constructor(name, width, height, frameSpeed, startFrame, endFrame, imagePath, once = false, callback = null) {
+    constructor(name, width, height, frameSpeed, startFrame, endFrame, imagePath, once = false, callback = null, once_max_frame = -1) {
         super(width, height);
         this.name = name;
         this.counter = 0;
         this.currentFrame = 0;
+        this.once_max_frame = once_max_frame;
         this.once = once;
         this.frameSpeed = frameSpeed;
         this.startFrame = startFrame;
@@ -25,7 +26,7 @@ class SpriteSheet extends Sprite {
      * Update frame index to the next frame
      */
     update() {
-        if (this.once && this.countPlaying > 1) {
+        if (this.once && this.once_max_frame > 0 && this.countPlaying > this.once_max_frame) {
             this.currentFrame = this.framesPerRow - 1;
         }
 

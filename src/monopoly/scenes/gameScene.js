@@ -2,14 +2,15 @@ class GameScene extends Scene {
 
     constructor(engine) {
         super('GameScene', engine);
-        this.map = new Map(new Size(10, 10), engine);
+        this.game = new Game(engine);
+        this.displayLoading = true;
     }
 
     OnCreate() {
-        this.map.OnCreate();
+        this.game.OnCreate();
     }
 
     OnUpdate(elapsedTime) {
-        this.map.OnUpdate(elapsedTime);
+        this.game.OnUpdate(elapsedTime);
     }
 }
