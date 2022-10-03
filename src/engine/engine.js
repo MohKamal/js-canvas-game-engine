@@ -360,7 +360,7 @@ class Engine {
 
             // execute the scene logic
             this.currentScene.OnUpdate(this.elapsedTime);
-            this.currentScene.layers.sort(this.compare);
+            this.currentScene.layers.sort(this.compareLayers);
             for (var i = 0; i < this.currentScene.layers.length; i++) {
                 for (let j = 0; j < this.currentScene.layers[i].layer.gameObjects.length; j++) {
                     if (this.currentScene.layers[i].layer.gameObjects[j].showIt)
