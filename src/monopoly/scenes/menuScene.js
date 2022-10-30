@@ -3,7 +3,7 @@ class MenuScene extends Scene {
     constructor(engine) {
         super('MenuScene', engine);
         this.spritePlay = new Sprite(200, 50);
-        this.spritePlay.loadImage('./../assets/sprites/buttons/play_off.png');
+        this.spritePlay.loadImage('./assets/sprites/buttons/play_off.png');
         this.music = new Sound('./assets/audio/main_menu.mp3', 50, true);
 
     }

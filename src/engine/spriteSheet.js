@@ -1,8 +1,9 @@
 class SpriteSheet extends Sprite {
 
     constructor(name, width, height, frameSpeed, startFrame, endFrame, imagePath, once = false, callback = null, once_max_frame = -1) {
-        super(width, height);
+        super(width, height, imagePath);
         this.name = name;
+        this.dWidth = width;
         this.counter = 0;
         this.currentFrame = 0;
         this.once_max_frame = once_max_frame;
@@ -55,5 +56,12 @@ class SpriteSheet extends Sprite {
         let row = parseInt(Math.floor(parseFloat(this.animationSequence[this.currentFrame] / this.framesPerRow)));
         let col = parseInt(Math.floor(parseFloat(this.animationSequence[this.currentFrame] % this.framesPerRow)));
         return new Point(parseInt(col * this.width), parseInt(row * this.height));
+    }
+
+    /**
+     * Function to call back when the engine is loading all images
+     */
+    callbackWhenLoading() {
+        this.framesPerRow = parseInt(Math.floor(parseFloat((this.image.width / this.dWidth).toString())).toString());
     }
 }

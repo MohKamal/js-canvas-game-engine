@@ -1,5 +1,5 @@
 class Engine {
-
+    static spritesToLoad = [];
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
@@ -26,6 +26,8 @@ class Engine {
         this.isKeyClicked = false;
         this.clickDelay = true;
         this.clickDelayCounter = 0.1;
+        this.initImageLoading = false;
+        this.initImageIsLoading = false;
         this.canvas.addEventListener('mousemove', function(e) {
             return this.mousePoint = new Point(e.pageX, e.pageY);
         }.bind(this));
@@ -339,6 +341,14 @@ class Engine {
      */
     timerElapsed() {
         this.drawer.clear();
+        if (this.currentScene !== null && this.currentScene.isCreated == true && !this.initImageLoading) {
+            if (!this.initImageIsLoading) {
+                this.initImageIsLoading = true;
+                this.startLoadingAllImages(() => { console.info('all sprites loaded') });
+            }
+            this.drawer.text("Loading...", { X: 100, Y: 100 }, 48, 'Arial', '', 'black');
+            return;
+        }
         // Calcule the delta time
         this.endTime = new Date();
         this.elapsedTime = Math.abs(this.endTime - this.startTime) / 1000;
@@ -356,6 +366,8 @@ class Engine {
             if (!this.currentScene.isCreated) {
                 this.currentScene.OnCreate();
                 this.currentScene.created();
+                this.initImageLoading = false;
+                this.initImageIsLoading = false;
             }
 
             // execute the scene logic
@@ -381,6 +393,43 @@ class Engine {
                 }
             }
         }
+    }
 
+    /**
+     * Load all images from sprites in the engine
+     * @param {function} callback 
+     */
+    startLoadingAllImages(callback) {
+        let imagesOK = 0;
+        // iterate through the imageURLs array and create new images for each
+        for (var i = 0; i < Engine.spritesToLoad.length; i++) {
+            // create a new image an push it into the imgs[] array
+            let sprite = Engine.spritesToLoad[i];
+            if (sprite.spritePath == null) {
+                imagesOK++;
+                continue;
+            }
+            var img = new Image();
+            // Important! By pushing (saving) this img into imgs[],
+            //     we make sure the img variable is free to
+            //     take on the next value in the loop.
+            sprite.image = img;
+            // when this image loads, call this img.onload
+            img.onload = function() {
+                // this img loaded, increment the image counter
+                imagesOK++;
+                sprite.imageLoaded = true;
+                sprite.callbackWhenLoading();
+                // if we've loaded all images, call the callback
+                if (imagesOK >= Engine.spritesToLoad.length) {
+                    this.initImageLoading = true;
+                    callback();
+                }
+            }.bind(this);
+            // notify if there's an error
+            img.onerror = function(e) { console.error("image load failed: " + sprite.spritePath); }.bind(this);
+            // set img properties
+            img.src = sprite.spritePath;
+        }
     }
 }
