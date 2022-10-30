@@ -346,7 +346,7 @@ class Engine {
         this.elapsedTime = Math.abs(this.endTime - this.startTime) / 1000;
         this.startTime = this.endTime;
         // Run the user logic everytime
-        this.engineActive = this.OnUpdate(this.elapsedTime);
+        // this.engineActive = this.OnUpdate(this.elapsedTime);
 
         this.executeScenes();
         if (this.currentScene !== null) {
