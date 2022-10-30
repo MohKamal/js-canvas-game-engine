@@ -15,9 +15,7 @@ class Engine {
         this.frameCount = 0;
         this.fps = 0;
         this.currentScene = null;
-        this.gameObjects = [];
         this.scenes = [];
-        this.currentCamera = null;
         // Track mouse position event
         this.mousePoint = new Point(0, 0);
         this.mouseButton = [];
@@ -65,6 +63,16 @@ class Engine {
             }
             this.isKeyClicked = false;
         }.bind(this), false);
+
+        // add intro scene
+        this.addIntroScene();
+    }
+
+    /**
+     * Create intro scene for the engine
+     */
+    addIntroScene() {
+        this.registerScene(new IntroScene(this));
     }
 
     /**
@@ -148,21 +156,6 @@ class Engine {
     }
 
     /**
-     * Register new gameobject to the engine to be draw by default
-     * @param {*} gameObject 
-     * @returns bool
-     */
-    registerGameObject(gameObject) {
-        if (gameObject === null || gameObject === undefined) {
-            console.error('No game object was defined');
-            return false;
-        }
-
-        this.gameObjects.push(gameObject);
-        return true;
-    }
-
-    /**
      * Get current mouse point on the canvas
      * @returns {Point}
      */
@@ -196,9 +189,6 @@ class Engine {
      */
     startEngine() {
         this.engineActive = this.OnCreate();
-        for (var i = 0; i < this.gameObjects.length; i++) {
-            this.gameObjects[i].sprite.image = this.preloadImage(this.gameObjects[i].sprite.image.src);
-        }
         this.timerElement = setInterval(this.timerElapsed.bind(this), 1);
         return this.engineActive;
     }
@@ -256,6 +246,23 @@ class Engine {
             return true;
         }
 
+        return false;
+    }
+
+    /**
+     * Go to the next scene
+     */
+    nextScene() {
+        if (this.currentScene !== null) {
+            if (this.scenes.length > 0) {
+                for (var i = 0; i < this.scenes.length; i++) {
+                    if (!this.scenes[i].isEnded) {
+                        this.currentScene = this.scenes[i];
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -322,21 +329,6 @@ class Engine {
     }
 
     /**
-     * Set a camera to the full engine
-     * @param {Camera} camera 
-     * @returns 
-     */
-    setCamera(camera) {
-        if (camera === null || camera === undefined) {
-            console.error('No valid camera was found to be add to the engine');
-            return false;
-        }
-
-        this.currentCamera = camera;
-        return true;
-    }
-
-    /**
      * Timer callback function, where the magic is running
      */
     timerElapsed() {
@@ -356,27 +348,29 @@ class Engine {
         // Run the user logic everytime
         this.engineActive = this.OnUpdate(this.elapsedTime);
 
-        for (let i = 0; i < this.gameObjects.length; i++) {
-            if (this.gameObjects[i].showIt)
-                this.drawer.gameObject(this.gameObjects[i], 1, this.currentCamera);
-        }
-
         this.executeScenes();
         if (this.currentScene !== null) {
             if (!this.currentScene.isCreated) {
                 this.currentScene.OnCreate();
                 this.currentScene.created();
+                for (var i = 0; i < this.currentScene.gameObjects.length; i++) {
+                    this.currentScene.gameObjects[i].sprite.image = this.preloadImage(this.currentScene.gameObjects[i].sprite.image.src);
+                }
                 this.initImageLoading = false;
                 this.initImageIsLoading = false;
             }
 
             // execute the scene logic
             this.currentScene.OnUpdate(this.elapsedTime);
+            for (let i = 0; i < this.currentScene.gameObjects.length; i++) {
+                if (this.currentScene.gameObjects[i].showIt)
+                    this.drawer.gameObject(this.currentScene.gameObjects[i], 1, this.currentScene.currentCamera);
+            }
             this.currentScene.layers.sort(this.compareLayers);
             for (var i = 0; i < this.currentScene.layers.length; i++) {
                 for (let j = 0; j < this.currentScene.layers[i].layer.gameObjects.length; j++) {
                     if (this.currentScene.layers[i].layer.gameObjects[j].showIt)
-                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j], 1, this.currentCamera);
+                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j], 1, this.currentScene.currentCamera);
                 }
             }
         }
@@ -401,6 +395,10 @@ class Engine {
      */
     startLoadingAllImages(callback) {
         let imagesOK = 0;
+        if (Engine.spritesToLoad.length <= 0) {
+            this.initImageLoading = true;
+            callback();
+        }
         // iterate through the imageURLs array and create new images for each
         for (var i = 0; i < Engine.spritesToLoad.length; i++) {
             // create a new image an push it into the imgs[] array

@@ -5,8 +5,25 @@ class Scene {
         this.isEnded = false;
         this.isCreated = false;
         this.engine = engine;
+        this.gameObjects = [];
+        this.currentCamera = null;
         this.layers = [];
         this.registerLayer(new Layer('ground'));
+    }
+
+    /**
+     * Register new gameobject to the engine to be draw by default
+     * @param {*} gameObject 
+     * @returns bool
+     */
+    registerGameObject(gameObject) {
+        if (gameObject === null || gameObject === undefined) {
+            console.error('No game object was defined');
+            return false;
+        }
+
+        this.gameObjects.push(gameObject);
+        return true;
     }
 
     /**
@@ -48,6 +65,21 @@ class Scene {
     }
 
     /**
+     * Set a camera to the full engine
+     * @param {Camera} camera 
+     * @returns 
+     */
+    setCamera(camera) {
+        if (camera === null || camera === undefined) {
+            console.error('No valid camera was found to be add to the engine');
+            return false;
+        }
+
+        this.currentCamera = camera;
+        return true;
+    }
+
+    /**
      * Set the scene to created
      */
     created() { this.isCreated = true; }
@@ -58,6 +90,7 @@ class Scene {
     ended() {
         this.OnDestroy();
         this.isEnded = true;
+        this.engine.nextScene();
     }
 
     /**
