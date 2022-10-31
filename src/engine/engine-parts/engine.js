@@ -16,6 +16,7 @@ class Engine {
         this.fps = 0;
         this.currentScene = null;
         this.scenes = [];
+        this.jumpEngineIntro = false;
         // Track mouse position event
         this.mousePoint = new Point(0, 0);
         this.mouseButton = [];
@@ -63,9 +64,6 @@ class Engine {
             }
             this.isKeyClicked = false;
         }.bind(this), false);
-
-        // add intro scene
-        this.addIntroScene();
     }
 
     /**
@@ -172,6 +170,8 @@ class Engine {
             console.error('No canvas was found!');
             return false;
         }
+        // add intro scene
+        if (!this.jumpEngineIntro) this.addIntroScene();
         return this.startEngine();
     }
 

@@ -16,7 +16,7 @@ $(window).on("load", function() {
 class SampleScene extends Scene {
 
     constructor(engine) {
-        super('IntroScene', engine);
+        super('SampleScene', engine);
     }
     x = 500;
     speed = 150;
@@ -30,7 +30,7 @@ class SampleScene extends Scene {
     camera = null;
     movingAnimation = null;
     OnCreate() {
-        this.sprite = new SpriteSheet('moving', 125, 125, 5, 0, 15, 'assets/spritesheet_numbered.png');
+        this.sprite = new SpriteSheet('moving', 125, 125, 5, 0, 15, '../../assets/spritesheet_numbered.png');
         this.gameObject = new GameObject(this.sprite, new Position(150, 150));
         this.animation = new Animation();
         this.animation.registerAnimation(this.sprite);

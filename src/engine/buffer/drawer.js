@@ -352,4 +352,23 @@ class Drawer {
         this.ctx.fillRect(position.X, position.Y, size.width, size.height);
         return true;
     }
+
+    /**
+     * Draw a particlet
+     * @param {Particle} particle 
+     * @param {double} elapsedTime 
+     * @returns {boolean}
+     */
+    particle(particle, elapsedTime = 1) {
+        if (particle === null || particle === undefined) {
+            console.error('No particle found to be drawed');
+            return false;
+        }
+
+        particle.update(elapsedTime);
+        if (!particle.isDead)
+        // this.circle(particle.position, 25, particle.size.width, particle.size.height, true, 1, particle.color.toString(), particle.fade);
+            this.rectangle(particle.position, particle.size, true, 1, particle.color.toString(), particle.fade);
+        return true;
+    }
 }

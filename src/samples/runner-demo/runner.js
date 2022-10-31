@@ -12,7 +12,7 @@ $(window).on("load", function() {
         // Create the runner
         player = new GameObject(new Sprite(65, 70), new Position(PLAYER_SPAWN_X, PLAYER_SPAWN_Y));
         // Create the running sprtieSheet
-        spriteSheet = new SpriteSheet('running', 65, 70, 10, 0, 11, 'assets/sprites/man_running.png');
+        spriteSheet = new SpriteSheet('running', 65, 70, 10, 0, 11, '../../assets/sprites/man_running.png');
         // Create the animation for the runner and include the spritesheet
         playerAnimations = new Animation();
         playerAnimations.registerAnimation(spriteSheet);
@@ -22,11 +22,11 @@ $(window).on("load", function() {
 
         // Create the background as simple sprite only
         background = new Sprite(engine.screenSize().width, engine.screenSize().height - 150);
-        background.loadImage('./assets/sprites/background.jpg');
+        background.loadImage('../../assets/sprites/background.jpg');
 
         // Create the building as Gameobject so they can move using the default functions
         buildingSprite = new Sprite(500, 250);
-        buildingSprite.loadImage('./assets/sprites/buildings.png');
+        buildingSprite.loadImage('../../assets/sprites/buildings.png');
         buildings = new GameObject(buildingSprite, new Position(-500, 480));
         buildings0 = new GameObject(buildingSprite, new Position(0, 480));
         buildings1 = new GameObject(buildingSprite, new Position(500, 480));
@@ -68,7 +68,7 @@ $(window).on("load", function() {
 
         // Ground as GameObject for order drawing
         groundSprite = new Sprite(engine.screenSize().width, 300);
-        groundSprite.loadImage('./assets/sprites/ground.png');
+        groundSprite.loadImage('../../assets/sprites/ground.png');
         ground = new GameObject(groundSprite, new Position(0, engine.screenSize().height - 180));
 
         // Create a camera
