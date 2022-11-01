@@ -9,4 +9,8 @@ class RGB {
     toString() {
         return `rgb(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
     }
+
+    toStringWithoutAlpha() {
+        return `rgb(${this.red}, ${this.green}, ${this.blue})`;
+    }
 }

@@ -24,11 +24,23 @@ var files = [{
     },
     {
         name: "Particle script",
-        path: "objects/particle.js"
+        path: "particles/particle.js"
     },
     {
         name: "Fire script",
-        path: "objects/fire.js"
+        path: "particles/fire.js"
+    },
+    {
+        name: "Lighting script",
+        path: "lights/lighting.js"
+    },
+    {
+        name: "Light Spot script",
+        path: "lights/lightSpot.js"
+    },
+    {
+        name: "Light Tile script",
+        path: "lights/lightTile.js"
     },
     {
         name: "Camera script",

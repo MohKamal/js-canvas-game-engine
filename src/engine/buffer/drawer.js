@@ -234,13 +234,14 @@ class Drawer {
      * @param {String} color 
      * @param {Camera} camera 
      */
-    rectangle(position, size, filled = true, lineWidth = 5, color = 'red', opacity = 1, camera = null) {
+    rectangle(position, size, filled = true, lineWidth = 5, color = 'red', opacity = 1, camera = null, filter = '') {
         // set line stroke and line width
         this.ctx.beginPath();
         this.ctx.strokeStyle = color;
         this.ctx.fillStyle = color;
         this.ctx.lineWidth = lineWidth;
         this.ctx.globalAlpha = opacity;
+        this.ctx.filter = filter;
         if (camera !== null) {
             camera.updateMaxPosition();
             if (position.X >= camera.position.X && position.Y <= camera.position.Y && position.X <= camera.maxPosition.X && position.Y <= camera.maxPosition.Y) {
