@@ -285,12 +285,59 @@ class Engine {
     }
 
     /**
-     * Check if the mouse is on top of an object
-     * @param {GameObject} gameObject 
+     * Check if the mouse is on top of an object or element
+     * @param {GameObject | Element} gameObject 
      */
     mouseOnTopOf(gameObject) {
         if (gameObject === null || gameObject === undefined)
             return false;
+        let found = true;
+        if (this.currentScene != null) {
+            let layer = this.currentScene.getTopLayer();
+            if (layer != null) {
+                if (!gameObject.showIt) {
+                    // hidden
+                    found = false;
+                }
+                if (gameObject instanceof GameObject) {
+                    if (layer.gameObjects.filter(e => e.id === gameObject.id).length <= 0) {
+                        // not found in layer
+                        found = false;
+                    }
+                } else if (gameObject instanceof Element) {
+                    if (layer.elements.filter(e => e.id === gameObject.id).length <= 0) {
+                        // not found in layer
+                        found = false;
+                    }
+                }
+            } else {
+                if (gameObject instanceof GameObject) {
+                    if (this.currentScene.gameObjects.filter(e => e.id === gameObject.id).length <= 0) {
+                        // not found in scene
+                        found = false;
+                    }
+                }
+            }
+
+            if (!found) {
+                for (var i = 0; i < this.currentScene.layers.length; i++) {
+                    let layer = this.currentScene.layers[i].layer;
+                    if (gameObject instanceof GameObject) {
+                        if (layer.gameObjects.filter(e => e.id === gameObject.id).length > 0) {
+                            // found in layer
+                            found = true;
+                        }
+                    } else if (gameObject instanceof Element) {
+                        if (layer.elements.filter(e => e.id === gameObject.id).length > 0) {
+                            // found in layer
+                            found = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!found) return false;
 
         return (this.mousePosition().X < gameObject.position.X + gameObject.sprite.width &&
             this.mousePosition().X + 1 > gameObject.position.X &&
@@ -353,6 +400,7 @@ class Engine {
             if (!this.currentScene.isCreated) {
                 this.currentScene.OnCreate();
                 this.currentScene.created();
+                // load all sprites
                 for (var i = 0; i < this.currentScene.gameObjects.length; i++) {
                     this.currentScene.gameObjects[i].sprite.image = this.preloadImage(this.currentScene.gameObjects[i].sprite.image.src);
                 }
@@ -368,9 +416,19 @@ class Engine {
             }
             this.currentScene.layers.sort(this.compareLayers);
             for (var i = 0; i < this.currentScene.layers.length; i++) {
-                for (let j = 0; j < this.currentScene.layers[i].layer.gameObjects.length; j++) {
-                    if (this.currentScene.layers[i].layer.gameObjects[j].showIt)
-                        this.drawer.gameObject(this.currentScene.layers[i].layer.gameObjects[j], 1, this.currentScene.currentCamera);
+                let container = this.currentScene.layers[i];
+                let layer = container.layer;
+
+                for (let j = 0; j < layer.elements.length; j++) {
+                    let element = layer.elements[j];
+                    if (element.showIt)
+                        this.drawer.element(element, element.opacity, this.currentScene.currentCamera);
+                }
+
+                for (let j = 0; j < layer.gameObjects.length; j++) {
+                    let gameObject = layer.gameObjects[j];
+                    if (gameObject.showIt)
+                        this.drawer.gameObject(gameObject, gameObject.opacity, this.currentScene.currentCamera);
                 }
             }
         }
@@ -407,6 +465,7 @@ class Engine {
                 imagesOK++;
                 continue;
             }
+
             var img = new Image();
             // Important! By pushing (saving) this img into imgs[],
             //     we make sure the img variable is free to

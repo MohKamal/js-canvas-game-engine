@@ -43,6 +43,10 @@ var files = [{
         path: "lights/lightTile.js"
     },
     {
+        name: "Element script",
+        path: "objects/element.js"
+    },
+    {
         name: "Camera script",
         path: "objects/camera.js"
     },

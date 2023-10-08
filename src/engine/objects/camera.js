@@ -1,6 +1,7 @@
 class Camera {
 
     constructor(screenWidth, screenHeight, levelWidth, levelHeight, speed = 10) {
+        this.id = "camera_" + Math.random().toString(16).slice(2);
         this.screenSize = new Size(screenWidth, screenHeight);
         this.layoutSize = new Size(levelWidth, levelHeight);
         this.cameraSize = new Size(screenWidth, screenHeight);

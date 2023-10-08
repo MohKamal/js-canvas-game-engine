@@ -30,6 +30,21 @@ class Sprite {
     }
 
     /**
+     * Load sprite image from a path
+     * @param {string} path 
+     * @returns 
+     */
+    changeImage(path) {
+        if (this.path === null || this.path === undefined) {
+            console.error('No path was defined for the sprite');
+            return false;
+        }
+
+        this.image.src = path;
+        return true;
+    }
+
+    /**
      * Function to call back when the engine is loading all images
      */
     callbackWhenLoading() {

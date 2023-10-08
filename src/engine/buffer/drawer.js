@@ -372,4 +372,44 @@ class Drawer {
             this.rectangle(particle.position, particle.size, true, 1, particle.color.toString(), particle.fade);
         return true;
     }
+
+    /**
+     * Draw light spot as circles
+     * @param {*} lightSpot 
+     * @returns 
+     */
+    lightSpot(lightSpot) {
+        if (lightSpot === null || lightSpot === undefined) {
+            console.error('No light spot found to be drawed');
+            return false;
+        }
+
+        for (var i = 1; i < lightSpot.distance + 1; i++) {
+            this.circle(lightSpot.position, i * 10, 0, -1, true, 1, lightSpot.color.toStringWithoutAlpha(), lightSpot.color.alpha * lightSpot.tension);
+        }
+    }
+
+    /**
+     * Draw element
+     * @param {Element} element 
+     * @returns 
+     */
+    element(element, opacity = 1, camera = null) {
+        if (element === null || element === undefined) {
+            console.error('No element found to be drawed');
+            return false;
+        }
+
+        if (element.sprite instanceof Sprite) {
+            this.sprite(element.sprite, element.position, opacity, camera);
+            return true;
+        }
+
+        if (element.sprite instanceof SpriteSheet) {
+            this.spriteSheet(element.split, element.position, opacity, camera);
+            return true;
+        }
+
+        return false;
+    }
 }

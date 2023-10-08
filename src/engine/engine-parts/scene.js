@@ -80,6 +80,29 @@ class Scene {
     }
 
     /**
+     * Get top layer
+     * @returns {Layer} layer
+     */
+    getTopLayer() {
+        if (this.layers.length == 1) {
+            return this.layers[0];
+        }
+
+        if (this.layers.length > 1) {
+            let layer = this.layers[0].layer;
+            for (var i = 1; i < this.layers.length; i++) {
+                if (this.layers[i].layer.z_order > layer.z_order) {
+                    layer = this.layers[i].layer;
+                }
+            }
+
+            return layer;
+        }
+
+        return null;
+    }
+
+    /**
      * Set the scene to created
      */
     created() { this.isCreated = true; }

@@ -1,7 +1,9 @@
 class GameObject {
 
-    constructor(sprite, position) {
+    constructor(sprite, position, opacity = 1) {
+        this.id = "gameobject_" + Math.random().toString(16).slice(2);
         this.sprite = sprite;
+        this.opacity = opacity;
         this.position = position;
         this.velocity = new Point(0, 0);
         this.name = "Game Object";
