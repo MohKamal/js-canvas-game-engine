@@ -388,6 +388,10 @@ class Game {
             let offer = this.currentPlayer.myOffers[i];
             let offerTile = offer.tile;
             let buyer = this.currentPlayer.myOffers[i].buyer;
+            if (offerTile.purchaseValue == undefined) {
+                this.currentPlayer.clearOffers();
+                return;
+            }
             if (buyer.solde >= offerTile.purchaseValue * 2) {
                 if (this.engine.sfx)
                     this.notifSound.play();

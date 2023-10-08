@@ -124,11 +124,11 @@ files.forEach((file) => {
     script.setAttribute('async', '');
 
     script.onload = function handleScriptLoaded() {
-        console.log(`script ${file.name} has loaded`);
+        console.log(`engine script ${file.name} has loaded`);
     };
 
     script.onerror = function handleScriptError() {
-        console.log(`error loading script ${file.name}`);
+        console.log(`error loading engine script ${file.name}`);
     };
 
     document.head.appendChild(script);

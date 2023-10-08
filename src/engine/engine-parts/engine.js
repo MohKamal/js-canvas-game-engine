@@ -300,21 +300,27 @@ class Engine {
                     found = false;
                 }
                 if (gameObject instanceof GameObject) {
-                    if (layer.gameObjects.filter(e => e.id === gameObject.id).length <= 0) {
-                        // not found in layer
-                        found = false;
+                    if (layer.gameObjects != undefined) {
+                        if (layer.gameObjects.filter(e => e.id === gameObject.id).length <= 0) {
+                            // not found in layer
+                            found = false;
+                        }
                     }
                 } else if (gameObject instanceof Element) {
-                    if (layer.elements.filter(e => e.id === gameObject.id).length <= 0) {
-                        // not found in layer
-                        found = false;
+                    if (layer.elements != undefined) {
+                        if (layer.elements.filter(e => e.id === gameObject.id).length <= 0) {
+                            // not found in layer
+                            found = false;
+                        }
                     }
                 }
             } else {
                 if (gameObject instanceof GameObject) {
-                    if (this.currentScene.gameObjects.filter(e => e.id === gameObject.id).length <= 0) {
-                        // not found in scene
-                        found = false;
+                    if (this.currentScene.gameObjects != undefined) {
+                        if (this.currentScene.gameObjects.filter(e => e.id === gameObject.id).length <= 0) {
+                            // not found in scene
+                            found = false;
+                        }
                     }
                 }
             }
@@ -323,14 +329,18 @@ class Engine {
                 for (var i = 0; i < this.currentScene.layers.length; i++) {
                     let layer = this.currentScene.layers[i].layer;
                     if (gameObject instanceof GameObject) {
-                        if (layer.gameObjects.filter(e => e.id === gameObject.id).length > 0) {
-                            // found in layer
-                            found = true;
+                        if (layer.gameObjects != undefined) {
+                            if (layer.gameObjects.filter(e => e.id === gameObject.id).length > 0) {
+                                // found in layer
+                                found = true;
+                            }
                         }
                     } else if (gameObject instanceof Element) {
-                        if (layer.elements.filter(e => e.id === gameObject.id).length > 0) {
-                            // found in layer
-                            found = true;
+                        if (layer.elements != undefined) {
+                            if (layer.elements.filter(e => e.id === gameObject.id).length > 0) {
+                                // found in layer
+                                found = true;
+                            }
                         }
                     }
                 }
@@ -381,6 +391,7 @@ class Engine {
     timerElapsed() {
         this.drawer.clear();
         if (this.currentScene !== null && this.currentScene.isCreated == true && !this.initImageLoading) {
+            console.log(this.currentScene.isCreated, this.initImageLoading);
             if (!this.initImageIsLoading) {
                 this.initImageIsLoading = true;
                 this.startLoadingAllImages(() => { console.info('all sprites loaded') });
@@ -487,6 +498,11 @@ class Engine {
             img.onerror = function(e) { console.error("image load failed: " + sprite.spritePath); }.bind(this);
             // set img properties
             img.src = sprite.spritePath;
+
+            if (this.initImageLoading) {
+                Engine.spritesToLoad = [];
+                break;
+            }
         }
     }
 }
